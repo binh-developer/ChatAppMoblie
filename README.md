@@ -18,3 +18,10 @@ npm install react-native-elements
 npm install react-native-gifted-chat
 npm install --save @react-native-firebase/app
 ```
+
+### Run Push Notification
+
+```
+cd functions
+npm run start
+```
