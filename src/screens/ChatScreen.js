@@ -1,21 +1,22 @@
-import moment from 'moment';
 import React, {useLayoutEffect, useState, useCallback} from 'react';
-import {
-  GiftedChat,
-  Bubble,
-  Send,
-  SystemMessage,
-} from 'react-native-gifted-chat';
 import {
   ActivityIndicator,
   View,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import {
+  GiftedChat,
+  Bubble,
+  Send,
+  SystemMessage,
+} from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+
+import {sortAsc} from '../utils/arrayUtil';
 
 const ChatScreen = ({route, navigation}) => {
   const [messages, setMessages] = useState([]);
@@ -83,16 +84,8 @@ const ChatScreen = ({route, navigation}) => {
               createdAt: data[key].createdAt,
               image: data[key].imageURL,
             }));
-            let sortListByTime = rawMessage.sort(function (a, b) {
-              var keyA = new Date(a.createdAt),
-                keyB = new Date(b.createdAt);
-              // Compare the 2 dates
-              if (keyA > keyB) return -1;
-              if (keyA < keyB) return 1;
-              return 0;
-            });
 
-            setMessages(sortListByTime);
+            setMessages(sortAsc(rawMessage));
           }
         }
       });

@@ -9,18 +9,19 @@ import {
 } from 'react-native';
 import {Avatar, Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {formatDateFull} from '../util/timeConvert';
+import {formatDateFull} from '../utils/timeUtil';
 
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 
 export default function ListRoomScreen({navigation}) {
   const [roomMetadata, setRoomMetadata] = useState({});
-  const [userJoinRoom, setUserJoinRoom] = useState('');
+  const [userJoinRoom, setUserJoinRoom] = useState({});
   const [roomUsers, setRoomUsers] = useState({});
   let userId = auth()?.currentUser?.uid;
 
   useLayoutEffect(() => {
+    let loading = true;
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity onPress={getProfile}>
@@ -49,15 +50,38 @@ export default function ListRoomScreen({navigation}) {
       ),
     });
 
-    getListRoom();
-    getListRoomUserJoined();
-    getUnreadRoom();
+    const ListRoom = database()
+      .ref('room-metadata')
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          if (loading) {
+            setRoomMetadata(snapshot.val());
+          }
+        }
+      });
 
-    return () => {
-      setRoomMetadata({});
-      setUserJoinRoom('');
-      setRoomUsers({});
-    };
+    const ListRoomUserJoined = database()
+      .ref('user-metadata')
+      .child(auth()?.currentUser?.uid)
+      .child('rooms')
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          if (loading) {
+            setUserJoinRoom(snapshot.val());
+          }
+        }
+      });
+    const UnreadRoom = database()
+      .ref('room-users')
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          if (loading) {
+            setRoomUsers(snapshot.val());
+          }
+        }
+      });
+
+    return ListRoom, ListRoomUserJoined, UnreadRoom, () => (loading = false);
   }, []);
 
   const getProfile = () => {
@@ -66,37 +90,6 @@ export default function ListRoomScreen({navigation}) {
 
   const createRoom = () => {
     navigation.navigate('CreateRoom');
-  };
-
-  const getListRoom = () => {
-    database()
-      .ref('room-metadata')
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          setRoomMetadata(snapshot.val());
-        }
-      });
-  };
-  const getListRoomUserJoined = () => {
-    database()
-      .ref('user-metadata')
-      .child(auth()?.currentUser?.uid)
-      .child('rooms')
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          setUserJoinRoom(snapshot.val());
-        }
-      });
-  };
-
-  const getUnreadRoom = () => {
-    database()
-      .ref('room-users')
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          setRoomUsers(snapshot.val());
-        }
-      });
   };
 
   const enterRoom = (id, room) => {
@@ -224,8 +217,8 @@ export default function ListRoomScreen({navigation}) {
                   {roomMetadata[item].roomName}
                 </Text>
                 {/* Check unread */}
-                {Object.keys(roomUsers).length !== 0 &&
-                  userJoinRoom !== '' &&
+                {!!roomUsers &&
+                  !!userJoinRoom &&
                   Object.keys(roomUsers).includes(item) &&
                   userJoinRoom[item] !== null &&
                   Object.keys(roomUsers[item]).includes(userId) &&

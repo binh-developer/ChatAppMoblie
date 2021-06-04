@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
+import {StyleSheet, Text, View, Image, ScrollView} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 const ProfileScreen = () => {
@@ -29,60 +29,86 @@ const ProfileScreen = () => {
   }
 
   return (
-    <View>
+    <ScrollView>
       <View style={styles.container}>
-        <View style={styles.header}></View>
-        <Image
-          style={styles.avatar}
-          source={{uri: user.photoURL ? user.photoURL : undefined}}
-        />
-        <View style={styles.body}>
-          <Text style={styles.name}>{user.displayName}</Text>
-          <Text style={styles.mail}>{user.email}</Text>
+        <View style={[styles.card, styles.profileCard]}>
+          <Image
+            style={styles.avatar}
+            source={{uri: user.photoURL ? user.photoURL : undefined}}
+          />
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTittle}>Bio</Text>
+          <Text>Email: {user.email}</Text>
+          <Text>Username: {user.displayName}</Text>
+        </View>
+
+        <View style={styles.photosCard}>
+          <Text style={styles.cardTittle}>Photos</Text>
+          <View style={styles.photosContainer}>
+            <Image
+              style={styles.photo}
+              source={{
+                uri: user.photoURL ? user.photoURL : undefined,
+              }}
+            />
+          </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 export default ProfileScreen;
-
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: '#00BFFF',
-    height: 200,
+  container: {
+    flex: 1,
+    padding: 10,
+  },
+  cardTittle: {
+    color: '#808080',
+    fontSize: 15,
+    marginBottom: 5,
   },
   avatar: {
-    width: 130,
-    height: 130,
-    borderRadius: 63,
-    borderWidth: 4,
-    borderColor: 'white',
-    marginBottom: 10,
-    alignSelf: 'center',
-    position: 'absolute',
-    marginTop: 130,
+    width: 150,
+    height: 150,
+    borderRadius: 100,
   },
-  name: {
-    fontSize: 22,
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  body: {
-    marginTop: 100,
-    alignItems: 'center',
-  },
-  name: {
-    fontSize: 28,
-    color: '#696969',
-    fontWeight: '600',
-  },
-  mail: {
-    fontSize: 16,
-    color: '#00BFFF',
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 10,
     marginTop: 10,
+    justifyContent: 'center',
   },
-  container: {
-    flexDirection: 'column',
+  profileCard: {
+    height: 200,
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  name: {
+    marginTop: 10,
+    fontSize: 22,
+    color: '#808080',
+  },
+  photosContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    height: 'auto',
+  },
+  photosCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    marginTop: 10,
+    padding: 10,
+  },
+  photo: {
+    width: 113,
+    height: 113,
+    marginTop: 5,
+    marginRight: 5,
   },
 });
