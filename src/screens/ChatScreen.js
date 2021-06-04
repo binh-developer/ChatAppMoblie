@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   View,
   StyleSheet,
-  Text,
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -22,6 +21,7 @@ const ChatScreen = ({route, navigation}) => {
   const [messages, setMessages] = useState([]);
 
   const {id, roomData} = route.params;
+  const roomId = id;
 
   useLayoutEffect(() => {
     let mounted = true;
@@ -44,14 +44,22 @@ const ChatScreen = ({route, navigation}) => {
       },
     });
 
-    const deleteRoom = roomId => {
-      if (auth()?.currentUser?.uid === roomId) {
+    const deleteRoom = userId => {
+      if (auth()?.currentUser?.uid === userId) {
         database()
-          .ref('room-metadata' + `/${id}`)
+          .ref('room-metadata' + `/${roomId}`)
           .remove();
 
         database()
-          .ref('room-messages' + `/${id}`)
+          .ref('room-messages' + `/${roomId}`)
+          .remove();
+
+        database()
+          .ref('room-users' + `/${roomId}`)
+          .remove();
+
+        database()
+          .ref('user-metadata/' + userId + `/rooms/${roomId}`)
           .remove();
       }
 
@@ -64,26 +72,35 @@ const ChatScreen = ({route, navigation}) => {
       .on('value', snapshot => {
         if (snapshot !== undefined) {
           let data = snapshot.val();
-
           if (mounted && data !== null) {
-            setMessages(
-              Object.keys(data).map((key, index) => ({
-                _id: key,
-                user: {
-                  _id: data[key].userId,
-                  name: data[key].userName,
-                },
-                text: data[key].messageText,
-                createdAt: moment(data[key].createdAt).format('LLLL'),
-                image: data[key].imageURL,
-              })),
-            );
+            let rawMessage = Object.keys(data).map((key, index) => ({
+              _id: key,
+              user: {
+                _id: data[key].userId,
+                name: data[key].userName,
+              },
+              text: data[key].messageText,
+              createdAt: data[key].createdAt,
+              image: data[key].imageURL,
+            }));
+            let sortListByTime = rawMessage.sort(function (a, b) {
+              var keyA = new Date(a.createdAt),
+                keyB = new Date(b.createdAt);
+              // Compare the 2 dates
+              if (keyA > keyB) return -1;
+              if (keyA < keyB) return 1;
+              return 0;
+            });
+
+            setMessages(sortListByTime);
           }
         }
       });
+
     return unsubscribe, () => (mounted = false);
   }, []);
 
+  // Send Message
   const onSend = useCallback((messages = []) => {
     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, messages),

@@ -17,12 +17,10 @@ import database from '@react-native-firebase/database';
 export default function ListRoomScreen({navigation}) {
   const [roomMetadata, setRoomMetadata] = useState({});
   const [userJoinRoom, setUserJoinRoom] = useState('');
-  const [roomUsers, setroomUsers] = useState({});
+  const [roomUsers, setRoomUsers] = useState({});
   let userId = auth()?.currentUser?.uid;
 
   useLayoutEffect(() => {
-    let mounted = true;
-
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity onPress={getProfile}>
@@ -51,39 +49,15 @@ export default function ListRoomScreen({navigation}) {
       ),
     });
 
-    const ListRoom = database()
-      .ref('room-metadata')
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          if (mounted) {
-            setRoomMetadata(snapshot.val());
-          }
-        }
-      });
+    getListRoom();
+    getListRoomUserJoined();
+    getUnreadRoom();
 
-    const ListRoomUserJoined = database()
-      .ref('user-metadata')
-      .child(auth()?.currentUser?.uid)
-      .child('rooms')
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          if (mounted) {
-            setUserJoinRoom(snapshot.val());
-          }
-        }
-      });
-
-    const UnreadRoom = database()
-      .ref('room-users')
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          if (mounted) {
-            setroomUsers(snapshot.val());
-          }
-        }
-      });
-
-    return ListRoom, ListRoomUserJoined, UnreadRoom, () => (mounted = false);
+    return () => {
+      setRoomMetadata({});
+      setUserJoinRoom('');
+      setRoomUsers({});
+    };
   }, []);
 
   const getProfile = () => {
@@ -92,6 +66,37 @@ export default function ListRoomScreen({navigation}) {
 
   const createRoom = () => {
     navigation.navigate('CreateRoom');
+  };
+
+  const getListRoom = () => {
+    database()
+      .ref('room-metadata')
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          setRoomMetadata(snapshot.val());
+        }
+      });
+  };
+  const getListRoomUserJoined = () => {
+    database()
+      .ref('user-metadata')
+      .child(auth()?.currentUser?.uid)
+      .child('rooms')
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          setUserJoinRoom(snapshot.val());
+        }
+      });
+  };
+
+  const getUnreadRoom = () => {
+    database()
+      .ref('room-users')
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          setRoomUsers(snapshot.val());
+        }
+      });
   };
 
   const enterRoom = (id, room) => {
@@ -158,16 +163,19 @@ export default function ListRoomScreen({navigation}) {
           <TextInput
             placeholder="Aa"
             onChangeText={text => {
-              database()
-                .ref('room-metadata')
-                .orderByChild('roomName')
-                .equalTo(text)
-                .once('value')
-                .then(snapshot => {
-                  if (snapshot.exists()) {
-                    setRoomMetadata(snapshot.val());
-                  } else getListRoom();
-                });
+              if (text.length <= 0) {
+                getListRoom();
+              } else
+                database()
+                  .ref('room-metadata')
+                  .orderByChild('roomName')
+                  .equalTo(text)
+                  .once('value')
+                  .then(snapshot => {
+                    if (snapshot.exists()) {
+                      setRoomMetadata(snapshot.val());
+                    }
+                  });
             }}
             style={styles.inputs}
           />
