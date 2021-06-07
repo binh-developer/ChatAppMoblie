@@ -13,6 +13,7 @@ import CreateRoom from './screens/CreateRoom';
 
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
+import messaging from '@react-native-firebase/messaging';
 
 // Ignore Yellow Warning
 LogBox.ignoreLogs(['Setting a timer']);
@@ -38,7 +39,6 @@ PushNotification.configure({
   onAction: function (notification) {
     console.log('ACTION:', notification.action);
     console.log('NOTIFICATION:', notification);
-
     // process the action
   },
 
@@ -66,6 +66,10 @@ PushNotification.configure({
    *     requestPermissions: Platform.OS === 'ios'
    */
   requestPermissions: true,
+});
+
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background!', remoteMessage);
 });
 
 const Stack = createStackNavigator();

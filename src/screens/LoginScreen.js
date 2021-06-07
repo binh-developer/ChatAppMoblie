@@ -30,8 +30,7 @@ const LoginScreen = ({navigation}) => {
           .then(currentToken => {
             if (currentToken) {
               // Send the token to your server and update the UI if necessary
-              // ...
-              console.log(currentToken);
+              // Store device token
               database()
                 .ref('user-metadata')
                 .child(auth()?.currentUser.uid)
@@ -70,8 +69,7 @@ const LoginScreen = ({navigation}) => {
           .then(currentToken => {
             if (currentToken) {
               // Send the token to your server and update the UI if necessary
-              // ...
-              console.log(currentToken);
+              // Store device token
               database()
                 .ref('user-metadata')
                 .child(auth()?.currentUser.uid)

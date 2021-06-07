@@ -120,6 +120,12 @@ export default function ListRoomScreen({navigation}) {
   };
 
   const signOut = () => {
+    database()
+      .ref('user-metadata')
+      .child(auth()?.currentUser.uid)
+      .child('deviceId')
+      .remove();
+
     auth()
       .signOut()
       .then(() => {
