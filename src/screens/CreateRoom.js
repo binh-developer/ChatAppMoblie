@@ -18,16 +18,15 @@ const CreateRoom = ({navigation: {goBack}}) => {
 
   const createRoom = () => {
     if (room !== '') {
-      setRoom(room.replace(/\s/g, '').toLowerCase());
+      database()
+        .ref('room-metadata')
+        .push({
+          roomName: room.replace(/\s/g, '').toLowerCase(),
+          roomType: 'public',
+          createdAt: database.ServerValue.TIMESTAMP,
+          createdByUserId: auth()?.currentUser?.uid,
+        });
     }
-
-    database().ref('room-metadata').push({
-      roomName: room,
-      roomType: 'public',
-      createdAt: database.ServerValue.TIMESTAMP,
-      createdByUserId: auth()?.currentUser?.uid,
-    });
-
     return goBack();
   };
 

@@ -163,7 +163,13 @@ export default function ListRoomScreen({navigation}) {
             placeholder="Aa"
             onChangeText={text => {
               if (text.length <= 0) {
-                getListRoom();
+                database()
+                  .ref('room-metadata')
+                  .once('value', snapshot => {
+                    if (snapshot !== undefined) {
+                      setRoomMetadata(snapshot.val());
+                    }
+                  });
               } else
                 database()
                   .ref('room-metadata')
