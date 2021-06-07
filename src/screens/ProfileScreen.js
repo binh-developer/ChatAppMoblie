@@ -1,13 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, Image, ScrollView} from 'react-native';
 import auth from '@react-native-firebase/auth';
-// import messaging from '@react-native-firebase/messaging';
 
 const ProfileScreen = () => {
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
-  const [token, setToken] = useState('');
 
   // Handle user state changes
   function onAuthStateChanged(user) {
@@ -18,30 +16,7 @@ const ProfileScreen = () => {
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
 
-    // const subscriberToken = messaging()
-    //   .getToken({
-    //     vapidKey: '',
-    //   })
-    //   .then(currentToken => {
-    //     if (currentToken) {
-    //       // Send the token to your server and update the UI if necessary
-    //       // ...
-    //       setToken(currentToken);
-    //     } else {
-    //       // Show permission request UI
-    //       console.log(
-    //         'No registration token available. Request permission to generate one.',
-    //       );
-    //       // ...
-    //     }
-    //   })
-    //   .catch(err => {
-    //     console.log('An error occurred while retrieving token. ', err);
-    //     // ...
-    //   });
-
     return subscriber; // unsubscribe on unmount
-    // , subscriberToken
   }, []);
 
   if (initializing) return null;
@@ -68,7 +43,6 @@ const ProfileScreen = () => {
           <Text style={styles.cardTittle}>Bio</Text>
           <Text>Email: {user.email}</Text>
           <Text>Username: {user.displayName}</Text>
-          <Text>Token: {token}</Text>
         </View>
 
         <View style={styles.photosCard}>
