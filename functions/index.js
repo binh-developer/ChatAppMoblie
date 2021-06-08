@@ -38,7 +38,8 @@ function pushNotification() {
                       body:
                         lastMessageText.userName +
                         ': ' +
-                        lastMessageText.messageText,
+                        lastMessageText.messageText +
+                        lastMessageText.imageURL,
                       sound: 'default',
                     },
                     data: {},

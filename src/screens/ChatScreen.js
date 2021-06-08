@@ -4,23 +4,27 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
+  Platform,
+  Alert,
 } from 'react-native';
 import {
+  Actions,
   GiftedChat,
   Bubble,
   Send,
   SystemMessage,
 } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import * as ImagePicker from 'react-native-image-picker';
 
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import storage from '@react-native-firebase/storage';
 
 import {sortAsc} from '../utils/arrayUtil';
 
 const ChatScreen = ({route, navigation}) => {
   const [messages, setMessages] = useState([]);
-
   const {id, roomData} = route.params;
   const roomId = id;
 
@@ -69,7 +73,7 @@ const ChatScreen = ({route, navigation}) => {
 
     const unsubscribe = database()
       .ref('room-messages/' + id)
-      .limitToLast(100)
+      .limitToLast(40)
       .on('value', snapshot => {
         if (snapshot !== undefined) {
           let data = snapshot.val();
@@ -93,23 +97,7 @@ const ChatScreen = ({route, navigation}) => {
     return unsubscribe, () => (mounted = false);
   }, []);
 
-  // Send Message
-  const onSend = useCallback((messages = []) => {
-    setMessages(previousMessages =>
-      GiftedChat.append(previousMessages, messages),
-    );
-    database()
-      .ref('room-messages/' + id)
-      .push({
-        userId: auth()?.currentUser?.uid,
-        userName: auth()?.currentUser?.displayName,
-        imageURL: '',
-        createdAt: database.ServerValue.TIMESTAMP,
-        messageText: messages[0].text,
-      });
-
-    // Check all user unread messages
-
+  function checkUnSeen() {
     database()
       .ref(`room-users/${id}`)
       .once('value')
@@ -127,6 +115,90 @@ const ChatScreen = ({route, navigation}) => {
       .catch(error => {
         console.error(error);
       });
+  }
+
+  // Send Image
+  function handlePickImage() {
+    ImagePicker.launchImageLibrary(
+      {
+        maxWidth: 2000,
+        maxHeight: 2000,
+      },
+      response => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+        } else if (response.customButton) {
+          console.log('User tapped custom button: ', response.customButton);
+        } else {
+          const uri = response.assets[0].uri;
+          const filename =
+            auth()?.currentUser.uid +
+            '/' +
+            uri.substring(uri.lastIndexOf('/') + 1);
+          const uploadUri =
+            Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+
+          Alert.alert('Sent Image', 'Confirm ?', [
+            {
+              text: 'Cancel',
+              onPress: () => console.log('Cancel Pressed', response),
+              style: 'cancel',
+            },
+            {text: 'OK', onPress: () => sendImg(filename, uploadUri)},
+          ]);
+
+          function sendImg(filename, uploadUri) {
+            const task = storage().ref(filename).putFile(uploadUri);
+            // set progress state
+            task.on(
+              'state_changed',
+              snapshot => {},
+              error => {
+                console.log(error.message, 'Error From Upload');
+              },
+              () => {
+                // Handle successful uploads on complete
+                // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+                task.snapshot.ref.getDownloadURL().then(downloadURL => {
+                  database()
+                    .ref('room-messages/' + id)
+                    .push({
+                      userId: auth()?.currentUser?.uid,
+                      userName: auth()?.currentUser?.displayName,
+                      imageURL: downloadURL,
+                      createdAt: database.ServerValue.TIMESTAMP,
+                      messageText: '',
+                    });
+
+                  checkUnSeen();
+                });
+              },
+            );
+          }
+        }
+      },
+    );
+  }
+
+  // Send Message
+  const onSend = useCallback((messages = []) => {
+    setMessages(previousMessages =>
+      GiftedChat.append(previousMessages, messages),
+    );
+    database()
+      .ref('room-messages/' + id)
+      .push({
+        userId: auth()?.currentUser?.uid,
+        userName: auth()?.currentUser?.displayName,
+        imageURL: '',
+        createdAt: database.ServerValue.TIMESTAMP,
+        messageText: messages[0].text,
+      });
+
+    // Check all user unread messages
+    checkUnSeen();
   }, []);
 
   function renderBubble(props) {
@@ -200,6 +272,18 @@ const ChatScreen = ({route, navigation}) => {
     );
   }
 
+  function renderActions(props) {
+    return (
+      <Actions
+        {...props}
+        options={{
+          ['Send Image']: handlePickImage,
+        }}
+        icon={() => <Icon name={'attachment'} size={24} color="#3399ff" />}
+      />
+    );
+  }
+
   return (
     <GiftedChat
       messages={messages}
@@ -214,6 +298,7 @@ const ChatScreen = ({route, navigation}) => {
       renderSystemMessage={renderSystemMessage}
       scrollToBottomComponent={scrollToBottomComponent}
       renderSystemMessage={renderSystemMessage}
+      renderActions={renderActions}
       listViewProps={{
         style: {
           backgroundColor: '#F5F5F5',

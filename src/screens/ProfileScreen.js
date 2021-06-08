@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, Image, ScrollView} from 'react-native';
+import {Button} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({navigation}) => {
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
@@ -55,6 +56,19 @@ const ProfileScreen = () => {
               }}
             />
           </View>
+        </View>
+
+        <View style={styles.card}>
+          <Button
+            buttonStyle={{
+              backgroundColor: '#3a82f6',
+              borderRadius: 5,
+              marginHorizontal: 100,
+              marginTop: 10,
+            }}
+            onPress={() => navigation.navigate('Upload')}
+            title="Update Avatar"
+          />
         </View>
       </View>
     </ScrollView>

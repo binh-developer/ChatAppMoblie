@@ -10,6 +10,7 @@ import ChatScreen from './screens/ChatScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ListRoomScreen from './screens/ListRoomScreen';
 import CreateRoom from './screens/CreateRoom';
+import UploadScreen from './screens/UploadScreen';
 
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
@@ -131,6 +132,18 @@ export default function App() {
           }}
           name="Profile"
           component={ProfileScreen}
+        />
+        <Stack.Screen
+          options={{
+            headerTitle: 'Upload',
+            headerTitleAlign: 'center',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+              color: '#3a82f6',
+            },
+          }}
+          name="Upload"
+          component={UploadScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
