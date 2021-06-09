@@ -1,46 +1,3 @@
-## Note
-
-### Develop in Android Device. Haven't test in IOS yet.
-
-### Rename App Name
-
-```
-npx react-native-rename <newName>
-```
-
-### Install manually
-
-```
-npm install @react-navigation/native
-npm install react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view
-npm install @react-navigation/stack
-npm install react-native-elements
-npm install react-native-gifted-chat
-npm install --save @react-native-firebase/app
-```
-
-### Run Push Notification
-
-```
-cd functions
-npm run start
-```
-
-## Fix Warning Error from package <strong>react-native-gifted-chat</strong>
-
-```
-Animated.event now requires a second argument for options
-```
-
-- Install patch-package:
-
-```
-npm install -g patch-package
-```
-
-- In your root of project create a folder name patches and inside patches folder create a file with name: <strong>react-native-lightbox+0.8.1.patch</strong> with the following content:
-
-```diff
 diff --git a/node_modules/react-native-lightbox/LightboxOverlay.js b/LightboxOverlay.js
 index 9e01f9a..d093b44 100644
 --- a/node_modules/react-native-lightbox/LightboxOverlay.js
@@ -64,7 +21,7 @@ index 9e01f9a..d093b44 100644
          }
        },
 @@ -144,7 +144,7 @@ export default class LightboxOverlay extends Component {
-
+ 
      Animated.spring(
        this.state.openVal,
 -      { toValue: 1, ...this.props.springConfig }
@@ -81,10 +38,3 @@ index 9e01f9a..d093b44 100644
      ).start(() => {
        this.setState({
          isAnimating: false,
-```
-
-- Run:
-
-```
-patch-package
-```

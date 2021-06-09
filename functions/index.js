@@ -26,8 +26,8 @@ function pushNotification() {
             userMetadata[item].rooms[roomId] !== undefined
           ) {
             const registrationToken = userMetadata[item].deviceId;
-            console.log(registrationToken);
             if (registrationToken.length > 0) {
+              console.log(registrationToken, 'to send');
               admin
                 .messaging()
                 .sendToDevice(
@@ -37,9 +37,11 @@ function pushNotification() {
                       title: 'MeChat',
                       body:
                         lastMessageText.userName +
-                        ': ' +
-                        lastMessageText.messageText +
-                        lastMessageText.imageURL,
+                          ': ' +
+                          lastMessageText.imageURL.length >
+                        0
+                          ? 'image'
+                          : lastMessageText.messageText,
                       sound: 'default',
                     },
                     data: {},
