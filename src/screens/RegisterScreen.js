@@ -9,41 +9,16 @@ import {
   StyleSheet,
 } from 'react-native';
 import {Button} from 'react-native-elements';
+import {createUserAccount} from '../helpers/firebase';
 
-import auth from '@react-native-firebase/auth';
-
-const RegitserScreen = ({navigation}) => {
+const RegisterScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [imageURL, setImageURL] = useState('');
 
   const register = () => {
-    auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        // Signed in
-        var user = userCredential.user;
-        user
-          .updateProfile({
-            displayName: name,
-            photoURL: imageURL
-              ? imageURL
-              : 'https://lh4.googleusercontent.com/-v0soe-ievYE/AAAAAAAAAAI/AAAAAAACyas/yR1_yhwBcBA/photo.jpg?sz=150',
-          })
-          .then(function () {})
-          .catch(function (error) {
-            // An error happened.
-          });
-        // ...
-        auth().signOut();
-        navigation.popToTop();
-      })
-      .catch(error => {
-        var errorMessage = error.message;
-        alert(errorMessage);
-        // ..
-      });
+    createUserAccount(email, password, name);
+    navigation.popToTop();
   };
 
   return (
@@ -74,13 +49,6 @@ const RegitserScreen = ({navigation}) => {
               values={password}
               onChangeText={text => setPassword(text)}
             />
-            <TextInput
-              placeholder="Image URL"
-              placeholderColor="#c4c3cb"
-              style={styles.registerFormTextInput}
-              values={imageURL}
-              onChangeText={text => setImageURL(text)}
-            />
             <Button
               buttonStyle={styles.registerButton}
               onPress={register}
@@ -93,7 +61,7 @@ const RegitserScreen = ({navigation}) => {
   );
 };
 
-export default RegitserScreen;
+export default RegisterScreen;
 
 const styles = StyleSheet.create({
   containerView: {

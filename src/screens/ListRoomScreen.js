@@ -11,14 +11,22 @@ import {Avatar, Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {formatDateFull} from '../utils/timeUtil';
 
-import auth from '@react-native-firebase/auth';
-import database from '@react-native-firebase/database';
+import {
+  getRoomMetadata,
+  getUserMetadata,
+  getRoomUser,
+  getUserProfile,
+  signUserToRoom,
+  checkUserSeenMessage,
+  removeTokenDevice,
+  logOut,
+} from '../helpers/firebase';
 
 export default function ListRoomScreen({navigation}) {
   const [roomMetadata, setRoomMetadata] = useState({});
   const [userJoinRoom, setUserJoinRoom] = useState({});
   const [roomUsers, setRoomUsers] = useState({});
-  let userId = auth()?.currentUser?.uid;
+  let userId = getUserProfile()?.uid;
 
   useLayoutEffect(() => {
     let loading = true;
@@ -36,10 +44,12 @@ export default function ListRoomScreen({navigation}) {
               rounded
               size="small"
               source={{
-                uri: auth()?.currentUser?.photoURL,
+                uri: getUserProfile()?.photoURL
+                  ? getUserProfile()?.photoURL
+                  : 'https://lh4.googleusercontent.com/-v0soe-ievYE/AAAAAAAAAAI/AAAAAAACyas/yR1_yhwBcBA/photo.jpg?sz=150',
               }}
             />
-            <Text style={{margin: 5}}>{auth()?.currentUser?.displayName}</Text>
+            <Text style={{margin: 5}}>{getUserProfile()?.displayName}</Text>
           </View>
         </TouchableOpacity>
       ),
@@ -50,19 +60,15 @@ export default function ListRoomScreen({navigation}) {
       ),
     });
 
-    const ListRoom = database()
-      .ref('room-metadata')
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          if (loading) {
-            setRoomMetadata(snapshot.val());
-          }
+    const ListRoom = getRoomMetadata().on('value', snapshot => {
+      if (snapshot !== undefined) {
+        if (loading) {
+          setRoomMetadata(snapshot.val());
         }
-      });
+      }
+    });
 
-    const ListRoomUserJoined = database()
-      .ref('user-metadata')
-      .child(auth()?.currentUser?.uid)
+    const ListRoomUserJoined = getUserMetadata()
       .child('rooms')
       .on('value', snapshot => {
         if (snapshot !== undefined) {
@@ -71,15 +77,13 @@ export default function ListRoomScreen({navigation}) {
           }
         }
       });
-    const UnreadRoom = database()
-      .ref('room-users')
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          if (loading) {
-            setRoomUsers(snapshot.val());
-          }
+    const UnreadRoom = getRoomUser().on('value', snapshot => {
+      if (snapshot !== undefined) {
+        if (loading) {
+          setRoomUsers(snapshot.val());
         }
-      });
+      }
+    });
 
     return ListRoom, ListRoomUserJoined, UnreadRoom, () => (loading = false);
   }, []);
@@ -93,15 +97,7 @@ export default function ListRoomScreen({navigation}) {
   };
 
   const enterRoom = (id, room) => {
-    database()
-      .ref('room-users')
-      .child(id)
-      .child(auth()?.currentUser?.uid)
-      .update({readed: true})
-      .catch(error => {
-        console.error(error);
-      });
-
+    checkUserSeenMessage(id, userId);
     navigation.navigate('Chat', {
       id,
       roomData: room,
@@ -109,25 +105,12 @@ export default function ListRoomScreen({navigation}) {
   };
 
   const joinListRoom = roomId => {
-    const userId = auth()?.currentUser?.uid;
-    if (userId) {
-      database()
-        .ref('user-metadata/' + userId + '/rooms/' + roomId)
-        .set({
-          join: true,
-        });
-    }
+    signUserToRoom(roomId);
   };
 
   const signOut = () => {
-    database()
-      .ref('user-metadata')
-      .child(auth()?.currentUser.uid)
-      .child('deviceId')
-      .remove();
-
-    auth()
-      .signOut()
+    removeTokenDevice();
+    logOut()
       .then(() => {
         navigation.replace('Login');
       })
@@ -163,16 +146,13 @@ export default function ListRoomScreen({navigation}) {
             placeholder="Aa"
             onChangeText={text => {
               if (text.length <= 0) {
-                database()
-                  .ref('room-metadata')
-                  .once('value', snapshot => {
-                    if (snapshot !== undefined) {
-                      setRoomMetadata(snapshot.val());
-                    }
-                  });
+                getRoomMetadata().once('value', snapshot => {
+                  if (snapshot !== undefined) {
+                    setRoomMetadata(snapshot.val());
+                  }
+                });
               } else
-                database()
-                  .ref('room-metadata')
+                getRoomMetadata()
                   .orderByChild('roomName')
                   .equalTo(text)
                   .once('value')
@@ -256,8 +236,7 @@ export default function ListRoomScreen({navigation}) {
               </View>
               <View style={styles.roomRow}>
                 <Text style={{color: 'gray', fontWeight: 'bold'}}>
-                  {roomMetadata[item].createdByUserId ===
-                  auth()?.currentUser?.uid
+                  {roomMetadata[item].createdByUserId === getUserProfile()?.uid
                     ? 'You created at ' +
                       formatDateFull(roomMetadata[item].createdAt)
                     : null}

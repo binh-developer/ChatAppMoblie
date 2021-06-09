@@ -6,15 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
-  Alert,
   Image,
 } from 'react-native';
 import * as ImagePicker from 'react-native-image-picker';
 import * as Progress from 'react-native-progress';
-import storage from '@react-native-firebase/storage';
-import auth from '@react-native-firebase/auth';
 
-export default function UploadScreen({navigation}) {
+import {getUserProfile, updateAvatar} from '../helpers/firebase';
+
+export default function UploadAvatarScreen({navigation}) {
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
@@ -25,7 +24,6 @@ export default function UploadScreen({navigation}) {
       maxHeight: 2000,
     };
     ImagePicker.launchImageLibrary(options, response => {
-      console.log(response);
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.error) {
@@ -42,47 +40,20 @@ export default function UploadScreen({navigation}) {
   const uploadImage = async () => {
     const {uri} = image;
     const filename =
-      auth()?.currentUser.uid + '/' + uri.substring(uri.lastIndexOf('/') + 1);
+      getUserProfile()?.uid + '/' + uri.substring(uri.lastIndexOf('/') + 1);
     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
 
     setUploading(true);
     setTransferred(0);
-    const task = storage().ref(filename).putFile(uploadUri);
-    // set progress state
-    task.on(
-      'state_changed',
-      snapshot => {
-        setTransferred(
-          Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000,
-        );
-      },
-      error => {
-        console.log(error.message, 'Error From Upload');
-      },
-      () => {
-        task.snapshot.ref.getDownloadURL().then(async url => {
-          // Update Avatar
-          auth()
-            ?.currentUser.updateProfile({
-              photoURL: url
-                ? url
-                : 'https://lh4.googleusercontent.com/-v0soe-ievYE/AAAAAAAAAAI/AAAAAAACyas/yR1_yhwBcBA/photo.jpg?sz=150',
-            })
-            .then(function () {})
-            .catch(function (error) {
-              // An error happened.
-            });
-        });
-      },
-    );
+
     try {
-      await task;
+      await updateAvatar(filename, uploadUri);
     } catch (e) {
       console.error(e);
     }
     setUploading(false);
     setImage(null);
-    navigation.goBack();
+    navigation.navigate('ListRoom');
   };
 
   return (

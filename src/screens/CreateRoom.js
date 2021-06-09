@@ -9,23 +9,14 @@ import {
   StyleSheet,
 } from 'react-native';
 import {Button} from 'react-native-elements';
-
-import auth from '@react-native-firebase/auth';
-import database from '@react-native-firebase/database';
+import {createRoom} from '../helpers/firebase';
 
 const CreateRoom = ({navigation: {goBack}}) => {
   const [room, setRoom] = useState('');
 
-  const createRoom = () => {
+  const onCreate = () => {
     if (room !== '') {
-      database()
-        .ref('room-metadata')
-        .push({
-          roomName: room.replace(/\s/g, '').toLowerCase(),
-          roomType: 'public',
-          createdAt: database.ServerValue.TIMESTAMP,
-          createdByUserId: auth()?.currentUser?.uid,
-        });
+      createRoom(room.replace(/\s/g, '').toLowerCase());
     }
     return goBack();
   };
@@ -33,7 +24,7 @@ const CreateRoom = ({navigation: {goBack}}) => {
   return (
     <KeyboardAvoidingView style={styles.containerView} behavior="height">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.roomnScreenContainer}>
+        <View style={styles.roomScreenContainer}>
           <View style={styles.roomFormView}>
             <Text style={styles.roomLogoText}>Create Room</Text>
             <TextInput
@@ -46,7 +37,7 @@ const CreateRoom = ({navigation: {goBack}}) => {
             <Button
               buttonStyle={styles.roomButton}
               title="Create"
-              onPress={createRoom}
+              onPress={onCreate}
             />
           </View>
         </View>
@@ -61,7 +52,7 @@ const styles = StyleSheet.create({
   containerView: {
     flex: 1,
   },
-  roomnScreenContainer: {
+  roomScreenContainer: {
     flex: 1,
   },
   roomLogoText: {

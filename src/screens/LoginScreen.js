@@ -10,8 +10,8 @@ import {
 } from 'react-native';
 import {Button} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
-import database from '@react-native-firebase/database';
-import messaging from '@react-native-firebase/messaging';
+
+import {registerTokenDevice} from '../helpers/firebase';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -22,34 +22,7 @@ const LoginScreen = ({navigation}) => {
       .signInWithEmailAndPassword(email, password)
       .then(userCredential => {
         // Signed in
-        messaging()
-          .getToken({
-            vapidKey:
-              'BAOSHcdZV0dn_qPx--WCLy079G0_0CT70GcHASAVlhK71Ue-3NR3iNdKoZPkQQ_RHMx8zaXaoATjMm6Cu2I03p4',
-          })
-          .then(currentToken => {
-            if (currentToken) {
-              // Send the token to your server and update the UI if necessary
-              // Store device token
-              database()
-                .ref('user-metadata')
-                .child(auth()?.currentUser.uid)
-                .child('deviceId')
-                .set(currentToken);
-            } else {
-              // Show permission request UI
-              console.log(
-                'No registration token available. Request permission to generate one.',
-              );
-              // ...
-            }
-          })
-          .catch(err => {
-            console.log('An error occurred while retrieving token. ', err);
-            // ...
-          });
-        // [END messaging_get_token]
-
+        registerTokenDevice();
         navigation.replace('ListRoom');
       })
       .catch(error => {
@@ -60,34 +33,7 @@ const LoginScreen = ({navigation}) => {
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(function (user) {
       if (user) {
-        // console.log(token, 'toke');
-        messaging()
-          .getToken({
-            vapidKey:
-              'BAOSHcdZV0dn_qPx--WCLy079G0_0CT70GcHASAVlhK71Ue-3NR3iNdKoZPkQQ_RHMx8zaXaoATjMm6Cu2I03p4',
-          })
-          .then(currentToken => {
-            if (currentToken) {
-              // Send the token to your server and update the UI if necessary
-              // Store device token
-              database()
-                .ref('user-metadata')
-                .child(auth()?.currentUser.uid)
-                .child('deviceId')
-                .set(currentToken);
-            } else {
-              // Show permission request UI
-              console.log(
-                'No registration token available. Request permission to generate one.',
-              );
-              // ...
-            }
-          })
-          .catch(err => {
-            console.log('An error occurred while retrieving token. ', err);
-            // ...
-          });
-        // [END messaging_get_token]
+        registerTokenDevice();
         navigation.replace('ListRoom');
       } else {
         navigation.canGoBack() && navigation.popToTop();
