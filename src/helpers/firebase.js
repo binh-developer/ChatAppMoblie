@@ -197,7 +197,7 @@ export function checkUnSeenToAllUsers(roomId) {
 }
 
 export function checkUserSeenMessage(roomId, userId) {
-  database()
+  return database()
     .ref(ROOM_USERS_COLLECTIONS)
     .child(roomId)
     .child(userId)
