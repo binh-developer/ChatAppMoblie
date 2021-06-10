@@ -97,7 +97,7 @@ const ChatScreen = ({route, navigation}) => {
           const uri = response.assets[0].uri;
           const filename =
             getUserProfile()?.uid +
-            '/' +
+            `/chat-rooms/${roomId}/` +
             uri.substring(uri.lastIndexOf('/') + 1);
           const uploadUri =
             Platform.OS === 'ios' ? uri.replace('file://', '') : uri;

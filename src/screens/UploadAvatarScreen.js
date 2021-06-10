@@ -40,7 +40,9 @@ export default function UploadAvatarScreen({navigation}) {
   const uploadImage = async () => {
     const {uri} = image;
     const filename =
-      getUserProfile()?.uid + '/' + uri.substring(uri.lastIndexOf('/') + 1);
+      getUserProfile()?.uid +
+      '/avatar/' +
+      uri.substring(uri.lastIndexOf('/') + 1);
     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
 
     setUploading(true);
