@@ -18,7 +18,8 @@ import {
   getUserProfile,
   signUserToRoom,
   checkUserSeenMessage,
-  removeTokenDevice,
+  updateLeaveRoom,
+  unsignUserToRoom,
   logOut,
 } from '../helpers/firebase';
 
@@ -60,13 +61,15 @@ export default function ListRoomScreen({navigation}) {
       ),
     });
 
-    const ListRoom = getRoomMetadata().on('value', snapshot => {
-      if (snapshot !== undefined) {
-        if (loading) {
-          setRoomMetadata(snapshot.val());
+    const ListRoom = getRoomMetadata()
+      .limitToLast(10)
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          if (loading) {
+            setRoomMetadata(snapshot.val());
+          }
         }
-      }
-    });
+      });
 
     const ListRoomUserJoined = getUserMetadata()
       .child('rooms')
@@ -77,13 +80,15 @@ export default function ListRoomScreen({navigation}) {
           }
         }
       });
-    const UnreadRoom = getRoomUser().on('value', snapshot => {
-      if (snapshot !== undefined) {
-        if (loading) {
-          setRoomUsers(snapshot.val());
+    const UnreadRoom = getRoomUser()
+      .limitToLast(10)
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          if (loading) {
+            setRoomUsers(snapshot.val());
+          }
         }
-      }
-    });
+      });
 
     return ListRoom, ListRoomUserJoined, UnreadRoom, () => (loading = false);
   }, []);
@@ -108,13 +113,15 @@ export default function ListRoomScreen({navigation}) {
     signUserToRoom(roomId);
   };
 
-  const signOut = () => {
-    removeTokenDevice();
-    logOut()
-      .then(() => {
-        navigation.replace('Login');
-      })
-      .catch(err => {});
+  const signOut = async () => {
+    const updateLogout = await updateLeaveRoom();
+    if (updateLogout) {
+      logOut()
+        .then(() => {
+          navigation.replace('Login');
+        })
+        .catch(err => {});
+    }
   };
 
   return (

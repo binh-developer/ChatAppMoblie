@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Platform,
   Alert,
+  Button,
 } from 'react-native';
 import {
   Actions,
@@ -25,6 +26,7 @@ import {
   checkUnSeenToAllUsers,
   sendMessageToRoom,
   sendImageMessage,
+  unsignUserToRoom,
 } from '../helpers/firebase';
 
 const ChatScreen = ({route, navigation}) => {
@@ -44,13 +46,36 @@ const ChatScreen = ({route, navigation}) => {
         if (getUserProfile()?.uid === roomData.createdByUserId) {
           return (
             <TouchableOpacity
-              style={{margin: 10}}
+              style={{margin: 10, flexDirection: 'row'}}
               onPress={() => {
                 deleteRoomById(roomId, roomData.createdByUserId);
                 navigation.goBack();
               }}>
               <Icon name="delete" size={20} color="red" />
+              <Icon
+                style={{marginLeft: 5}}
+                onPress={() => {
+                  unsignUserToRoom(roomId);
+                  navigation.goBack();
+                }}
+                name="remove-circle-outline"
+                size={20}
+                color="orange"
+              />
             </TouchableOpacity>
+          );
+        } else {
+          return (
+            <Icon
+              style={{margin: 10}}
+              onPress={() => {
+                unsignUserToRoom(roomId);
+                navigation.goBack();
+              }}
+              name="remove-circle-outline"
+              size={20}
+              color="orange"
+            />
           );
         }
       },

@@ -11,7 +11,7 @@ import {
 import {Button} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 
-import {registerTokenDevice} from '../helpers/firebase';
+import {registerTokenDevice, updateJoinRoom} from '../helpers/firebase';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -23,6 +23,7 @@ const LoginScreen = ({navigation}) => {
       .then(userCredential => {
         // Signed in
         registerTokenDevice();
+        updateJoinRoom();
         navigation.replace('ListRoom');
       })
       .catch(error => {
@@ -34,6 +35,7 @@ const LoginScreen = ({navigation}) => {
     const subscriber = auth().onAuthStateChanged(function (user) {
       if (user) {
         registerTokenDevice();
+        updateJoinRoom();
         navigation.replace('ListRoom');
       } else {
         navigation.canGoBack() && navigation.popToTop();

@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {navigationRef, navigate} from './RootNavigation';
 
 import {LogBox} from 'react-native';
 
@@ -12,8 +13,6 @@ import ListRoomScreen from './screens/ListRoomScreen';
 import CreateRoom from './screens/CreateRoom';
 import UploadScreen from './screens/UploadAvatarScreen';
 
-// import PushNotificationIOS from '@react-native-community/push-notification-ios';
-// import PushNotification from 'react-native-push-notification';
 import messaging from '@react-native-firebase/messaging';
 
 // Ignore Yellow Warning
@@ -32,73 +31,51 @@ async function requestUserPermission() {
 
 requestUserPermission();
 
-// // Must be outside of any component LifeCycle (such as `componentDidMount`).
-// PushNotification.configure({
-//   // (optional) Called when Token is generated (iOS and Android)
-//   onRegister: function (token) {
-//     console.log('TOKEN:', token);
-//   },
-
-//   // (required) Called when a remote is received or opened, or local notification is opened
-//   onNotification: function (notification) {
-//     console.log('NOTIFICATION:', notification);
-
-//     // process the notification
-
-//     // (required) Called when a remote is received or opened, or local notification is opened
-//     notification.finish(PushNotificationIOS.FetchResult.NoData);
-//   },
-
-//   // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
-//   onAction: function (notification) {
-//     console.log('ACTION:', notification.action);
-//     console.log('NOTIFICATION:', notification);
-//     // process the action
-//   },
-
-//   // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
-//   onRegistrationError: function (err) {
-//     console.error(err.message, err);
-//   },
-
-//   // IOS ONLY (optional): default: all - Permissions to register.
-//   permissions: {
-//     alert: true,
-//     badge: true,
-//     sound: true,
-//   },
-
-//   // Should the initial notification be popped automatically
-//   // default: true
-//   popInitialNotification: true,
-
-//   /**
-//    * (optional) default: true
-//    * - Specified if permissions (ios) and token (android and ios) will requested or not,
-//    * - if not, you must call PushNotificationsHandler.requestPermissions() later
-//    * - if you are not using remote notification or do not have Firebase installed, use this:
-//    *     requestPermissions: Platform.OS === 'ios'
-//    */
-//   requestPermissions: true,
-// });
-
 messaging().setBackgroundMessageHandler(async remoteMessage => {
-  console.log('Message handled in the background!', remoteMessage);
+  console.log('Background!', remoteMessage);
 });
 
 const Stack = createStackNavigator();
 
 export default function App() {
+  messaging().onNotificationOpenedApp(remoteMessage => {
+    console.log(
+      'Notification caused app to open from background state:',
+      remoteMessage.data.roomId,
+    );
+    navigate('Chat', {
+      id: remoteMessage.data.roomId,
+      roomData: {
+        createdByUserId: remoteMessage.data.createdByUserId,
+        roomName: remoteMessage.data.roomName,
+      },
+    });
+  });
+
+  // Check whether an initial notification is available
+  messaging()
+    .getInitialNotification()
+    .then(remoteMessage => {
+      if (remoteMessage) {
+        console.log(
+          'Notification caused app to open from quit state:',
+          remoteMessage.notification,
+        );
+      }
+    });
+
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
+      console.log('Foreground!', JSON.stringify(remoteMessage));
     });
+
+    messaging().on;
 
     return unsubscribe;
   }, []);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator>
         <Stack.Screen
           options={{headerShown: false}}

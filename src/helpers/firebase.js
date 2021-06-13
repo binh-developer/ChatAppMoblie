@@ -95,12 +95,53 @@ export function registerTokenDevice() {
     });
 }
 
-export function removeTokenDevice() {
-  return database()
+export async function updateLeaveRoom() {
+  var objectKey = [];
+  await database()
     .ref(USER_METADATA_COLLECTIONS)
     .child(auth()?.currentUser?.uid)
-    .child('deviceId')
-    .remove();
+    .update({deviceId: ''});
+
+  await database()
+    .ref(USER_METADATA_COLLECTIONS)
+    .child(auth()?.currentUser?.uid)
+    .child('rooms')
+    .once('value')
+    .then(snapshot =>
+      Object.keys(snapshot.val()).forEach(key => objectKey.push(key)),
+    );
+
+  objectKey.forEach(key => {
+    database()
+      .ref(USER_METADATA_COLLECTIONS)
+      .child(auth()?.currentUser?.uid)
+      .child('rooms')
+      .child(key)
+      .update({join: false});
+  });
+  return true;
+}
+
+export async function updateJoinRoom() {
+  var objectKey = [];
+  await database()
+    .ref(USER_METADATA_COLLECTIONS)
+    .child(auth()?.currentUser?.uid)
+    .child('rooms')
+    .once('value')
+    .then(snapshot =>
+      Object.keys(snapshot.val()).forEach(key => objectKey.push(key)),
+    );
+
+  objectKey.forEach(key => {
+    database()
+      .ref(USER_METADATA_COLLECTIONS)
+      .child(auth()?.currentUser?.uid)
+      .child('rooms')
+      .child(key)
+      .update({join: true});
+  });
+  return true;
 }
 
 // ROOM
@@ -137,6 +178,18 @@ export function signUserToRoom(roomId) {
       join: true,
     });
 }
+
+export function unsignUserToRoom(roomId) {
+  return database()
+    .ref(
+      USER_METADATA_COLLECTIONS +
+        `/${auth()?.currentUser?.uid}/rooms/${roomId}`,
+    )
+    .set({
+      join: false,
+    });
+}
+
 /**
  * Delete Room by roomId
  * @param {string} roomId
