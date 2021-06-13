@@ -9,6 +9,7 @@ app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
 
 let listRoomIds = [];
+let listRoomAndTokens = {};
 
 function detechNewMessages() {
   admin
@@ -16,10 +17,9 @@ function detechNewMessages() {
     .ref('room-messages')
     .on('child_changed', snapshot => {
       let roomId = snapshot.key;
+      // console.log(snapshot.val());
+      // console.log(roomId);
 
-      let {[Object.keys(snapshot.val()).pop()]: lastMessage} = snapshot.val();
-      let lastMessageText = lastMessage;
-      console.log(roomId);
       const message = {
         data: {},
         notification: {
@@ -44,25 +44,42 @@ function detechNewMessages() {
 }
 
 function getListTokenDevices() {
-  let tempRoomAndToken = null;
   admin
     .database()
     .ref('room-metadata')
     .on('value', snapshot => {
       // Clear old Array
       listRoomIds = [];
+      // Clear topics
+      if (listRoomAndTokens !== {}) {
+        Object.keys(listRoomAndTokens).forEach(roomKey => {
+          // console.log(roomKey);
+          console.log(listRoomAndTokens[roomKey]);
+          if (!_.isEmpty(listRoomAndTokens[roomKey])) {
+            admin
+              .messaging()
+              .unsubscribeFromTopic(listRoomAndTokens[roomKey], roomKey)
+              .then(response => {
+                console.log(
+                  `Unsubscribed for ${listRoomAndTokens[roomKey].length} in topic [${roomKey}]`,
+                  response,
+                );
+              });
+          }
+        });
+        listRoomAndTokens = {};
+      }
+
       // Get List new Array
       Object.keys(snapshot.val()).forEach(key => {
         listRoomIds.push(key);
       });
-      console.log(listRoomIds);
 
       admin
         .database()
         .ref('user-metadata')
         .once('value', snapshot => {
           let userMetadata = snapshot.val();
-          let listRoomAndTokens = {};
           listRoomIds.forEach(key => {
             listRoomAndTokens[key] = [];
           });
@@ -85,7 +102,7 @@ function getListTokenDevices() {
               }
             }
           });
-          console.log(listRoomAndTokens);
+
           console.log('-');
 
           Object.keys(listRoomAndTokens).forEach(roomKey => {
@@ -102,31 +119,9 @@ function getListTokenDevices() {
             }
           });
         });
-      detechNewMessages();
     });
-  // admin
-  //   .database()
-  //   .ref('user-metadata')
-  //   .once('child_changed', snapshot => {
-  //     console.log(snapshot.key, snapshot.val());
-  //     Object.keys(snapshot.val().rooms).forEach(roomKey => {
-  //       if (snapshot.val().rooms[roomKey].join === false) {
-  //         if (_.includes(listRoomIds, roomKey)) {
-  //           admin
-  //             .messaging()
-  //             .unsubscribeFromTopic(snapshot.val().deviceId, roomKey)
-  //             .then(response => {
-  //               console.log(
-  //                 `Unsubscribed for [${
-  //                   snapshot.val().deviceId
-  //                 }] in topic [${roomKey}]`,
-  //                 response,
-  //               );
-  //             });
-  //         }
-  //       }
-  //     });
-  //   });
+
+  detechNewMessages();
 }
 
 getListTokenDevices();
