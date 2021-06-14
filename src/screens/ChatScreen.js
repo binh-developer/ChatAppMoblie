@@ -17,6 +17,7 @@ import {
 } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as ImagePicker from 'react-native-image-picker';
+import PopupMenu from '../components/PopupMenu';
 
 import {sortAsc} from '../utils/arrayUtil';
 import {
@@ -29,7 +30,7 @@ import {
   unsignUserToRoom,
 } from '../helpers/firebase';
 
-const ChatScreen = ({route, navigation}) => {
+const ChatScreen = ({navigation, route}) => {
   const [messages, setMessages] = useState([]);
   const {id, roomData} = route.params;
   const roomId = id;
@@ -42,43 +43,16 @@ const ChatScreen = ({route, navigation}) => {
       headerTitleStyle: {
         color: '#3385ff',
       },
-      headerRight: () => {
-        if (getUserProfile()?.uid === roomData.createdByUserId) {
-          return (
-            <TouchableOpacity
-              style={{margin: 10, flexDirection: 'row'}}
-              onPress={() => {
-                deleteRoomById(roomId, roomData.createdByUserId);
-                navigation.goBack();
-              }}>
-              <Icon name="delete" size={20} color="red" />
-              <Icon
-                style={{marginLeft: 5}}
-                onPress={() => {
-                  unsignUserToRoom(roomId);
-                  navigation.goBack();
-                }}
-                name="remove-circle-outline"
-                size={20}
-                color="orange"
-              />
-            </TouchableOpacity>
-          );
-        } else {
-          return (
-            <Icon
-              style={{margin: 10}}
-              onPress={() => {
-                unsignUserToRoom(roomId);
-                navigation.goBack();
-              }}
-              name="remove-circle-outline"
-              size={20}
-              color="orange"
-            />
-          );
-        }
-      },
+      headerRight: () => (
+        <PopupMenu
+          menutext="Menu"
+          menustyle={{marginRight: 5}}
+          textStyle={{color: 'gray'}}
+          navigation={navigation}
+          route={route}
+          isIcon={true}
+        />
+      ),
     });
 
     const unsubscribe = getMessageRoomById(roomId).on('value', snapshot => {

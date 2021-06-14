@@ -10,6 +10,7 @@ import {
 import {Avatar, Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {formatDateFull} from '../utils/timeUtil';
+import PopupMenu from '../components/PopupMenu';
 
 import {
   getRoomMetadata,
@@ -20,10 +21,9 @@ import {
   checkUserSeenMessage,
   updateLeaveRoom,
   unsignUserToRoom,
-  logOut,
 } from '../helpers/firebase';
 
-export default function ListRoomScreen({navigation}) {
+export default function ListRoomScreen({navigation, route}) {
   const [roomMetadata, setRoomMetadata] = useState({});
   const [userJoinRoom, setUserJoinRoom] = useState({});
   const [roomUsers, setRoomUsers] = useState({});
@@ -55,9 +55,14 @@ export default function ListRoomScreen({navigation}) {
         </TouchableOpacity>
       ),
       headerRight: () => (
-        <TouchableOpacity style={{margin: 10}} onPress={signOut}>
-          <Icon name="sign-out" size={24} color="#ff471a" />
-        </TouchableOpacity>
+        <PopupMenu
+          menutext="Menu"
+          menustyle={{marginRight: 5}}
+          textStyle={{color: 'black'}}
+          navigation={navigation}
+          route={route}
+          isIcon={true}
+        />
       ),
     });
 
@@ -111,17 +116,6 @@ export default function ListRoomScreen({navigation}) {
 
   const joinListRoom = roomId => {
     signUserToRoom(roomId);
-  };
-
-  const signOut = async () => {
-    const updateLogout = await updateLeaveRoom();
-    if (updateLogout) {
-      logOut()
-        .then(() => {
-          navigation.replace('Login');
-        })
-        .catch(err => {});
-    }
   };
 
   return (
