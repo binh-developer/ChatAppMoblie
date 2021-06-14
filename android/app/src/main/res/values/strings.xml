@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MeChat</string>
+    <string name="default_notification_channel_id">com.mechat</string>
 </resources>
