@@ -39,20 +39,18 @@ function detechNewMessages() {
 
               const message = {
                 notification: {
-                  title: 'MeChat',
+                  title: room.roomName,
                   body:
-                    lastMessageText.userName +
-                      ': ' +
-                      lastMessageText.imageURL.length >
-                    0
+                    `${lastMessageText.userName}: ` +
+                    (lastMessageText.imageURL.length > 0
                       ? 'image'
-                      : lastMessageText.messageText,
+                      : lastMessageText.messageText),
                 },
                 android: {
                   priority: 'high',
                   notification: {
                     sound: 'default',
-                    color: '#FF00FF',
+                    color: '#0066FF',
                   },
                 },
                 data: {
