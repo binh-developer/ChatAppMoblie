@@ -97,10 +97,10 @@ export function registerTokenDevice() {
 
 export async function updateLeaveRoom() {
   var objectKey = [];
-  await database()
-    .ref(USER_METADATA_COLLECTIONS)
-    .child(auth()?.currentUser?.uid)
-    .update({deviceId: ''});
+  // await database()
+  //   .ref(USER_METADATA_COLLECTIONS)
+  //   .child(auth()?.currentUser?.uid)
+  //   .update({deviceId: ''});
 
   await database()
     .ref(USER_METADATA_COLLECTIONS)
