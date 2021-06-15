@@ -1,15 +1,12 @@
-const express = require('express');
 const _ = require('lodash');
-const {admin} = require('./firebase-config');
-
-const app = express();
-const port = 3000;
-
-app.use(express.json()); // for parsing application/json
-app.use(express.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
+const winston = require('../config/winston');
+const {admin} = require('./setup');
 
 let listRoomIds = [];
 let listRoomAndTokens = {};
+let time = new Date().toLocaleString('en-US', {
+  timeZone: 'Asia/SaiGon',
+});
 
 function detectNewMessages() {
   admin
@@ -80,9 +77,11 @@ function detectNewMessages() {
                 .then(response => {
                   // Response is a message ID string.
                   console.log('Successfully sent message:', response);
+                  winston.info(time + ' Success sending: ' + response);
                 })
                 .catch(error => {
                   console.log('Error sending message:', error);
+                  winston.info(time + ' Error sending: ' + error);
                 });
             });
         });
@@ -130,18 +129,16 @@ function getListTokenDevices() {
             }
           });
 
-          console.log('-' + new Date());
-
           Object.keys(listRoomAndTokens).forEach(roomKey => {
             if (!_.isEmpty(listRoomAndTokens[roomKey])) {
               admin
                 .messaging()
                 .subscribeToTopic(listRoomAndTokens[roomKey], roomKey)
                 .then(response => {
-                  console.log(
-                    `Topic [${roomKey}]`,
-                    response,
-                    `\n\tDevice(s) subscribed: ${listRoomAndTokens[roomKey]}`,
+                  winston.info(
+                    `${time} Topic: [${roomKey}] Device(s) subscribed: [${listRoomAndTokens[roomKey]}]` +
+                      '%o',
+                    {...response},
                   );
                 });
             }
@@ -166,10 +163,10 @@ function getListTokenDevices() {
               .messaging()
               .unsubscribeFromTopic(userChanged.deviceId, roomKey)
               .then(response => {
-                console.log(
-                  `Topic: [${roomKey}]`,
-                  response,
-                  `\n\tDevice(s) unsubscribed: ${userChanged.deviceId}`,
+                winston.info(
+                  `${time} Topic: [${roomKey}] Device(s) unsubscribed: [${userChanged.deviceId}]` +
+                    '%o',
+                  {...response},
                 );
               });
           }
@@ -181,7 +178,3 @@ function getListTokenDevices() {
 }
 
 getListTokenDevices();
-
-app.listen(port, () => {
-  console.log('Listening to port: ' + port);
-});
