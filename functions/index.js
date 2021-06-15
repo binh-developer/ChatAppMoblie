@@ -11,7 +11,7 @@ app.use(express.urlencoded({extended: true})); // for parsing application/x-www-
 let listRoomIds = [];
 let listRoomAndTokens = {};
 
-function detechNewMessages() {
+function detectNewMessages() {
   admin
     .database()
     .ref('room-messages')
@@ -28,8 +28,7 @@ function detechNewMessages() {
         .ref('room-metadata/' + roomId)
         .get()
         .then(snapshot => {
-          let room = snapshot.val();
-
+          // Get Room Info
           admin
             .database()
             .ref('room-metadata/' + roomId)
@@ -37,6 +36,7 @@ function detechNewMessages() {
             .then(snapshot => {
               let room = snapshot.val();
 
+              // Config Message
               const message = {
                 notification: {
                   title: room.roomName,
@@ -47,6 +47,7 @@ function detechNewMessages() {
                       : lastMessageText.messageText),
                 },
                 android: {
+                  // Required for background/quit data-only messages on Android
                   priority: 'high',
                   notification: {
                     sound: 'default',
@@ -129,7 +130,7 @@ function getListTokenDevices() {
             }
           });
 
-          console.log('-');
+          console.log('-' + new Date());
 
           Object.keys(listRoomAndTokens).forEach(roomKey => {
             if (!_.isEmpty(listRoomAndTokens[roomKey])) {
@@ -138,8 +139,9 @@ function getListTokenDevices() {
                 .subscribeToTopic(listRoomAndTokens[roomKey], roomKey)
                 .then(response => {
                   console.log(
-                    `Subscribed for ${listRoomAndTokens[roomKey]} device(s) in topic [${roomKey}]`,
+                    `Topic [${roomKey}]`,
                     response,
+                    `\n\tDevice(s) subscribed: ${listRoomAndTokens[roomKey]}`,
                   );
                 });
             }
@@ -165,8 +167,9 @@ function getListTokenDevices() {
               .unsubscribeFromTopic(userChanged.deviceId, roomKey)
               .then(response => {
                 console.log(
-                  `Unsubscribed for ${userChanged.deviceId} in topic [${roomKey}]`,
+                  `Topic: [${roomKey}]`,
                   response,
+                  `\n\tDevice(s) unsubscribed: ${userChanged.deviceId}`,
                 );
               });
           }
@@ -174,7 +177,7 @@ function getListTokenDevices() {
       });
     });
 
-  detechNewMessages();
+  detectNewMessages();
 }
 
 getListTokenDevices();
