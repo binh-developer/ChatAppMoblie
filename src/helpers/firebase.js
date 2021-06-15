@@ -107,18 +107,22 @@ export async function updateLeaveRoom() {
     .child(auth()?.currentUser?.uid)
     .child('rooms')
     .once('value')
-    .then(snapshot =>
-      Object.keys(snapshot.val()).forEach(key => objectKey.push(key)),
-    );
+    .then(snapshot => {
+      if (snapshot.val() !== null) {
+        Object.keys(snapshot.val()).forEach(key => objectKey.push(key));
+      }
+    });
 
-  objectKey.forEach(key => {
-    database()
-      .ref(USER_METADATA_COLLECTIONS)
-      .child(auth()?.currentUser?.uid)
-      .child('rooms')
-      .child(key)
-      .update({join: false});
-  });
+  if (objectKey !== []) {
+    objectKey.forEach(key => {
+      database()
+        .ref(USER_METADATA_COLLECTIONS)
+        .child(auth()?.currentUser?.uid)
+        .child('rooms')
+        .child(key)
+        .update({join: false});
+    });
+  }
   return true;
 }
 
@@ -129,18 +133,22 @@ export async function updateJoinRoom() {
     .child(auth()?.currentUser?.uid)
     .child('rooms')
     .once('value')
-    .then(snapshot =>
-      Object.keys(snapshot.val()).forEach(key => objectKey.push(key)),
-    );
+    .then(snapshot => {
+      if (snapshot.val() !== null) {
+        Object.keys(snapshot.val()).forEach(key => objectKey.push(key));
+      }
+    });
 
-  objectKey.forEach(key => {
-    database()
-      .ref(USER_METADATA_COLLECTIONS)
-      .child(auth()?.currentUser?.uid)
-      .child('rooms')
-      .child(key)
-      .update({join: true});
-  });
+  if (objectKey !== []) {
+    objectKey.forEach(key => {
+      database()
+        .ref(USER_METADATA_COLLECTIONS)
+        .child(auth()?.currentUser?.uid)
+        .child('rooms')
+        .child(key)
+        .update({join: true});
+    });
+  }
   return true;
 }
 

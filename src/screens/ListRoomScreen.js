@@ -19,8 +19,6 @@ import {
   getUserProfile,
   signUserToRoom,
   checkUserSeenMessage,
-  updateLeaveRoom,
-  unsignUserToRoom,
 } from '../helpers/firebase';
 
 export default function ListRoomScreen({navigation, route}) {
