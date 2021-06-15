@@ -1,6 +1,47 @@
-## Note
+<h1 align="center">
+<img alt="mechat_logo" title="mechat_logo" src="./docs/logo.png" width="100px" />
+    <br>
+    MeChat
+</h1>
 
-### Develop in Android Device. Haven't test in IOS yet.
+<h4 align="center">
+Contact me at <a href="mailto:binhdlt.work@gmail.com">mail</a> to about more.<br/>I have developed this project in Android Device, and haven't test in IOS yet.
+</h4>
+
+<h4 align="center">
+MeChat app layout. 
+</h4>
+
+<br>
+<p align="center">
+ <img alt="mechat_screen1_preview" title="mechat_screen1_preview" src="./docs/gif_1.gif" width="250px"/><br>
+</p>
+<br>
+<p align="center">
+  Under login screens
+</p>
+
+<p align="center">
+ <br>
+   <img alt="mechat_screen2_preview" title="mechat_screen3_preview" src="./docs/gif_2.gif" width="250px"/>
+  <img alt="mechat_screen3_preview" title="mechat_screen3_preview" src="./docs/gif_3.gif" width="250px"/>
+</p>
+
+## Install and Run the project
+
+```
+npm install
+npm run start
+```
+
+## Run Push Notification Server
+
+```
+cd functions
+npm run start
+```
+
+## Note while installing
 
 ### Rename App Name
 
@@ -8,25 +49,7 @@
 npx react-native-rename <newName>
 ```
 
-### Install manually
-
-```
-npm install @react-navigation/native
-npm install react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view
-npm install @react-navigation/stack
-npm install react-native-elements
-npm install react-native-gifted-chat
-npm install --save @react-native-firebase/app
-```
-
-### Run Push Notification
-
-```
-cd functions
-npm run start
-```
-
-## Fix Warning Error from package <strong>react-native-gifted-chat</strong>
+### Fix Warning Error from package <strong>react-native-gifted-chat</strong>
 
 ```
 Animated.event now requires a second argument for options
@@ -46,45 +69,56 @@ index 9e01f9a..d093b44 100644
 --- a/node_modules/react-native-lightbox/LightboxOverlay.js
 +++ b/node_modules/react-native-lightbox/LightboxOverlay.js
 @@ -99,7 +99,7 @@ export default class LightboxOverlay extends Component {
-       onPanResponderMove: Animated.event([
-         null,
-         { dy: this.state.pan }
+      onPanResponderMove: Animated.event([
+        null,
+        { dy: this.state.pan }
 -      ]),
 +      ], { useNativeDriver: false }),
-       onPanResponderTerminationRequest: (evt, gestureState) => true,
-       onPanResponderRelease: (evt, gestureState) => {
-         if(Math.abs(gestureState.dy) > DRAG_DISMISS_THRESHOLD) {
+      onPanResponderTerminationRequest: (evt, gestureState) => true,
+      onPanResponderRelease: (evt, gestureState) => {
+        if(Math.abs(gestureState.dy) > DRAG_DISMISS_THRESHOLD) {
 @@ -115,7 +115,7 @@ export default class LightboxOverlay extends Component {
-         } else {
-           Animated.spring(
-             this.state.pan,
+        } else {
+          Animated.spring(
+            this.state.pan,
 -            { toValue: 0, ...this.props.springConfig }
 +            { toValue: 0, useNativeDriver: false, ...this.props.springConfig }
-           ).start(() => { this.setState({ isPanning: false }); });
-         }
-       },
+          ).start(() => { this.setState({ isPanning: false }); });
+        }
+      },
 @@ -144,7 +144,7 @@ export default class LightboxOverlay extends Component {
 
-     Animated.spring(
-       this.state.openVal,
+    Animated.spring(
+      this.state.openVal,
 -      { toValue: 1, ...this.props.springConfig }
 +      { toValue: 1, useNativeDriver: false, ...this.props.springConfig }
-     ).start(() => {
-       this.setState({ isAnimating: false });
-       this.props.didOpen();
+    ).start(() => {
+      this.setState({ isAnimating: false });
+      this.props.didOpen();
 @@ -161,7 +161,7 @@ export default class LightboxOverlay extends Component {
-     });
-     Animated.spring(
-       this.state.openVal,
+    });
+    Animated.spring(
+      this.state.openVal,
 -      { toValue: 0, ...this.props.springConfig }
 +      { toValue: 0, useNativeDriver: false, ...this.props.springConfig }
-     ).start(() => {
-       this.setState({
-         isAnimating: false,
+    ).start(() => {
+      this.setState({
+        isAnimating: false,
 ```
 
 - Run:
 
 ```
 patch-package
+```
+
+### Install package manually
+
+```
+npm install @react-navigation/native
+npm install react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view
+npm install @react-navigation/stack
+npm install react-native-elements
+npm install react-native-gifted-chat
+npm install --save @react-native-firebase/app
 ```
