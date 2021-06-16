@@ -160,6 +160,7 @@ export function createRoom(roomName) {
     createdAt: database.ServerValue.TIMESTAMP,
     createdByUserId: auth()?.currentUser?.uid,
     lastMessageText: '',
+    roomAvatar: '',
   });
 }
 
@@ -188,7 +189,7 @@ export function signUserToRoom(roomId) {
     });
 }
 
-export function unsignUserToRoom(roomId) {
+export function unsignedUserToRoom(roomId) {
   return database()
     .ref(
       USER_METADATA_COLLECTIONS +
@@ -279,6 +280,7 @@ export async function sendMessageToRoom(roomId, message) {
         createdAt: timestamp,
         message: message.messageText.length > 0 ? message.messageText : 'image',
         userName: auth()?.currentUser?.displayName,
+        userId: auth()?.currentUser?.uid,
       },
     });
 

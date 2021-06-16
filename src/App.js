@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {navigationRef, navigate} from './RootNavigation';
@@ -120,8 +120,10 @@ const styles = {
       elevation: 0,
       shadowOpacity: 0,
       borderBottomWidth: 0,
+      height: 52,
     },
     headerTitleStyle: {
+      fontSize: 18,
       fontWeight: '900',
       color: '#3a82f6',
       elevation: 0, // remove shadow on Android

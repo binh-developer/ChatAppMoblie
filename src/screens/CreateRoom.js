@@ -69,11 +69,11 @@ const styles = StyleSheet.create({
   roomFormTextInput: {
     height: 43,
     fontSize: 14,
-    borderRadius: 5,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#eaeaea',
     backgroundColor: '#fafafa',
-    paddingLeft: 10,
+    paddingLeft: 20,
     marginLeft: 15,
     marginRight: 15,
     marginTop: 5,
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   roomButton: {
     backgroundColor: '#3a82f6',
-    borderRadius: 5,
+    borderRadius: 30,
     height: 45,
     marginHorizontal: 100,
     marginTop: 10,

@@ -72,7 +72,13 @@ const LoginScreen = ({navigation}) => {
               title="Login"
             />
             <Button
-              buttonStyle={styles.loginButton}
+              buttonStyle={{
+                ...styles.loginButton,
+                backgroundColor: '#f8f8f8',
+              }}
+              titleStyle={{
+                color: 'gray',
+              }}
               onPress={() => navigation.navigate('Register')}
               title="Register"
             />
@@ -110,8 +116,9 @@ const styles = StyleSheet.create({
   },
   loginFormTextInput: {
     height: 43,
-    fontSize: 14,
-    borderRadius: 5,
+    fontFamily: 'default',
+    fontSize: 12,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#eaeaea',
     backgroundColor: '#fafafa',
@@ -123,7 +130,7 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: '#3a82f6',
-    borderRadius: 5,
+    borderRadius: 30,
     height: 45,
     marginHorizontal: 100,
     marginTop: 10,

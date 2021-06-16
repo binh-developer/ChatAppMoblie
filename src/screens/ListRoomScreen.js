@@ -38,14 +38,18 @@ export default function ListRoomScreen({navigation, route}) {
               flex: 1,
               flexDirection: 'row',
               alignItems: 'center',
+              borderRadius: 50,
+              justifyContent: 'center',
             }}>
             <Avatar
               rounded
               size="small"
+              activeOpacity={0.7}
               source={{
-                uri: getUserProfile()?.photoURL
-                  ? getUserProfile()?.photoURL
-                  : 'https://lh4.googleusercontent.com/-v0soe-ievYE/AAAAAAAAAAI/AAAAAAACyas/yR1_yhwBcBA/photo.jpg?sz=150',
+                uri:
+                  getUserProfile()?.photoURL.length > 0
+                    ? getUserProfile()?.photoURL
+                    : 'https://lh4.googleusercontent.com/-v0soe-ievYE/AAAAAAAAAAI/AAAAAAACyas/yR1_yhwBcBA/photo.jpg?sz=150',
               }}
             />
           </View>
@@ -53,8 +57,8 @@ export default function ListRoomScreen({navigation, route}) {
       ),
       headerRight: () => (
         <PopupMenu
-          menutext="Menu"
-          menustyle={{marginRight: 5}}
+          menuText="Menu"
+          menuStyle={{marginRight: 2}}
           textStyle={{color: 'black'}}
           navigation={navigation}
           route={route}
@@ -134,6 +138,7 @@ export default function ListRoomScreen({navigation, route}) {
           }}>
           Room Available
         </Text>
+
         <Text
           style={{
             fontWeight: 'normal',
@@ -192,7 +197,7 @@ export default function ListRoomScreen({navigation, route}) {
             }}
             buttonStyle={{
               backgroundColor: '#DBEAFE',
-              borderRadius: 10,
+              borderRadius: 30,
               width: 40,
               height: 40,
             }}
@@ -216,16 +221,31 @@ export default function ListRoomScreen({navigation, route}) {
               }}>
               <View style={styles.roomAvatarView}>
                 <View style={styles.roomAvatarContainer}>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      textAlign: 'center',
-                      padding: 12,
-                      width: 45,
-                      height: 45,
-                    }}>
-                    {roomMetadata[item].roomName.charAt(0).toUpperCase()}
-                  </Text>
+                  {!!roomMetadata[item] &&
+                  roomMetadata[item].roomAvatar.length > 0 ? (
+                    <Avatar
+                      rounded
+                      size="medium"
+                      activeOpacity={0.7}
+                      source={{
+                        uri:
+                          roomMetadata[item].roomAvatar.length > 0
+                            ? roomMetadata[item].roomAvatar
+                            : 'https://lh4.googleusercontent.com/-v0soe-ievYE/AAAAAAAAAAI/AAAAAAACyas/yR1_yhwBcBA/photo.jpg?sz=150',
+                      }}
+                    />
+                  ) : (
+                    <Text
+                      style={{
+                        color: '#fff',
+                        textAlign: 'center',
+                        padding: 12,
+                        width: 45,
+                        height: 45,
+                      }}>
+                      {roomMetadata[item].roomName.charAt(0).toUpperCase()}
+                    </Text>
+                  )}
                 </View>
 
                 <View
@@ -235,7 +255,9 @@ export default function ListRoomScreen({navigation, route}) {
                   }}>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={{color: '#3a82f6', fontSize: 16}}>
-                      {roomMetadata[item].roomName}
+                      Room:{' '}
+                      {roomMetadata[item].roomName.charAt(0).toUpperCase() +
+                        roomMetadata[item].roomName.slice(1)}
                     </Text>
                     {/* Check unread */}
                     {!!roomUsers &&
@@ -257,7 +279,11 @@ export default function ListRoomScreen({navigation, route}) {
                             color: 'gray',
                             fontWeight: 'bold',
                           }}>
-                          {roomMetadata[item].lastMessage.userName + ': '}
+                          {getUserProfile()?.uid ===
+                          roomMetadata[item].lastMessage.userId
+                            ? 'You: '
+                            : roomMetadata[item].lastMessage.userName + ': '}
+
                           {roomMetadata[item].lastMessage.message}
                         </Text>
                       )}
@@ -268,7 +294,7 @@ export default function ListRoomScreen({navigation, route}) {
                         style={{
                           color: 'gray',
                         }}>
-                        You: created at{' '}
+                        Created at{' '}
                         {formatDateFull(roomMetadata[item].createdAt)}
                       </Text>
                     )}
@@ -330,8 +356,6 @@ const styles = StyleSheet.create({
   roomAvatarContainer: {
     backgroundColor: '#68a0cf',
     borderRadius: 30,
-    borderWidth: 1,
-    borderColor: '#68a0cf',
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',

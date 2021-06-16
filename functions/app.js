@@ -4,7 +4,7 @@ const path = require('path');
 var morgan = require('morgan');
 var winston = require('./config/winston');
 
-// import firebse service
+// import firebase service
 require('./services');
 
 const app = express();

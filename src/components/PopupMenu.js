@@ -1,13 +1,13 @@
 import React from 'react';
 //import react in our code.
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
 //import all the components we are going to use.
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 //import menu and menu item
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   deleteRoomById,
-  unsignUserToRoom,
+  unsignedUserToRoom,
   getUserProfile,
   updateLeaveRoom,
   logOut,
@@ -17,7 +17,7 @@ const PopupMenu = props => {
   let _menu = null;
 
   return (
-    <View style={props.menustyle}>
+    <View style={props.menuStyle}>
       <Menu
         ref={ref => (_menu = ref)}
         button={
@@ -27,7 +27,7 @@ const PopupMenu = props => {
             </TouchableOpacity>
           ) : (
             <Text onPress={() => _menu.show()} style={props.textStyle}>
-              {props.menutext}
+              {props.menuText}
             </Text>
           )
         }>
@@ -48,7 +48,7 @@ const PopupMenu = props => {
             ) : null}
             <MenuItem
               onPress={() => {
-                unsignUserToRoom(props.route.params.id);
+                unsignedUserToRoom(props.route.params.id);
                 props.navigation.goBack();
               }}>
               Leave Room

@@ -3,10 +3,8 @@ import {
   ActivityIndicator,
   View,
   StyleSheet,
-  TouchableOpacity,
   Platform,
   Alert,
-  Button,
 } from 'react-native';
 import {
   Actions,
@@ -22,12 +20,10 @@ import PopupMenu from '../components/PopupMenu';
 import {sortAsc} from '../utils/arrayUtil';
 import {
   getUserProfile,
-  deleteRoomById,
   getMessageRoomById,
   checkUnSeenToAllUsers,
   sendMessageToRoom,
   sendImageMessage,
-  unsignUserToRoom,
 } from '../helpers/firebase';
 
 const ChatScreen = ({navigation, route}) => {
@@ -39,14 +35,15 @@ const ChatScreen = ({navigation, route}) => {
     let mounted = true;
 
     navigation.setOptions({
-      headerTitle: roomData.roomName,
+      headerTitle:
+        roomData.roomName.charAt(0).toUpperCase() + roomData.roomName.slice(1),
       headerTitleStyle: {
         color: '#3385ff',
       },
       headerRight: () => (
         <PopupMenu
-          menutext="Menu"
-          menustyle={{marginRight: 5}}
+          menuText="Menu"
+          menuStyle={{marginRight: 5}}
           textStyle={{color: 'gray'}}
           navigation={navigation}
           route={route}
