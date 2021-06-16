@@ -2,7 +2,7 @@ import moment from 'moment';
 
 export function formatDateFull(seconds) {
   if (seconds) {
-    return moment(seconds).format('LLLL');
+    return moment(seconds).format('lll');
   }
 }
 

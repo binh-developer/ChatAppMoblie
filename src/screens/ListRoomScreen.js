@@ -7,8 +7,8 @@ import {
   FlatList,
   TextInput,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Avatar, Button} from 'react-native-elements';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import {formatDateFull} from '../utils/timeUtil';
 import PopupMenu from '../components/PopupMenu';
 
@@ -48,7 +48,6 @@ export default function ListRoomScreen({navigation, route}) {
                   : 'https://lh4.googleusercontent.com/-v0soe-ievYE/AAAAAAAAAAI/AAAAAAACyas/yR1_yhwBcBA/photo.jpg?sz=150',
               }}
             />
-            <Text style={{margin: 5}}>{getUserProfile()?.displayName}</Text>
           </View>
         </TouchableOpacity>
       ),
@@ -125,14 +124,25 @@ export default function ListRoomScreen({navigation, route}) {
           alignItems: 'center',
           margin: 2,
         }}>
-        <Text style={styles.rooms}>Room Available</Text>
+        <Text
+          style={{
+            textAlign: 'center',
+            fontWeight: 'bold',
+            margin: 5,
+            fontSize: 15,
+            color: '#3a82f6',
+          }}>
+          Room Available
+        </Text>
         <Text
           style={{
             fontWeight: 'normal',
             color: '#1D4ED8',
-            padding: 2,
+            paddingLeft: 6,
+            width: 20,
+            height: 20,
             backgroundColor: '#DBEAFE',
-            borderRadius: 4,
+            borderRadius: 10,
           }}>
           {Object.keys(roomMetadata).length}
         </Text>
@@ -141,8 +151,15 @@ export default function ListRoomScreen({navigation, route}) {
       {/* Search Room and Add Room */}
       <View style={styles.formContent}>
         <View style={styles.inputContainer}>
+          <Icon
+            style={{paddingLeft: 15}}
+            name="search"
+            size={20}
+            color="#989898"
+          />
           <TextInput
-            placeholder="Aa"
+            placeholder="Search"
+            placeholderTextColor="#989898"
             onChangeText={text => {
               if (text.length <= 0) {
                 getRoomMetadata().once('value', snapshot => {
@@ -166,7 +183,7 @@ export default function ListRoomScreen({navigation, route}) {
         </View>
 
         {/* Add New Room */}
-        <View style={styles.saveButton}>
+        <View style={styles.createRoomView}>
           <Button
             icon={{
               name: 'add',
@@ -185,61 +202,78 @@ export default function ListRoomScreen({navigation, route}) {
       </View>
       {/* List Room */}
       <FlatList
-        style={styles.roomList}
+        style={styles.roomListView}
         enableEmptySections={true}
         data={Object.keys(roomMetadata)}
         extraData={Object.keys(roomMetadata)}
         keyExtractor={(item, index) => item}
         renderItem={({item}) => (
-          <View style={styles.roomBox}>
+          <View style={styles.roomBoxView}>
             <TouchableOpacity
               onPress={() => {
                 enterRoom(item, roomMetadata[item]);
                 joinListRoom(item);
               }}>
-              <View style={styles.roomRow}>
-                {roomMetadata[item].roomType === 'private' && (
-                  <Icon name="lock" size={24} color="#ff1a1a" />
-                )}
-                {roomMetadata[item].roomType === 'public' && (
-                  <Icon name="unlock-alt" size={24} color="#33cc33" />
-                )}
-                <Text style={{color: 'blue', fontSize: 16, padding: 10}}>
-                  {roomMetadata[item].roomName}
-                </Text>
-                {/* Check unread */}
-                {!!roomUsers &&
-                  !!userJoinRoom &&
-                  Object.keys(roomUsers).includes(item) &&
-                  userJoinRoom[item] !== null &&
-                  Object.keys(roomUsers[item]).includes(userId) &&
-                  Object.keys(roomUsers[item][userId]).includes('readed') &&
-                  roomUsers[item][userId].readed === false && (
-                    <View
-                      style={{
-                        height: 10,
-                        width: 10,
-                        backgroundColor: '#ff7c4d',
-                        borderRadius: 10,
-                        shadowColor: '#000',
-                        shadowOffset: {
-                          width: 0,
-                          height: 2,
-                        },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 3.84,
+              <View style={styles.roomAvatarView}>
+                <View style={styles.roomAvatarContainer}>
+                  <Text
+                    style={{
+                      color: '#fff',
+                      textAlign: 'center',
+                      padding: 12,
+                      width: 45,
+                      height: 45,
+                    }}>
+                    {roomMetadata[item].roomName.charAt(0).toUpperCase()}
+                  </Text>
+                </View>
 
-                        elevation: 5,
-                      }}></View>
-                  )}
-              </View>
-              <View style={styles.roomRow}>
-                <Text style={{color: 'gray', fontWeight: 'bold'}}>
-                  {roomMetadata[item].createdByUserId === getUserProfile()?.uid
-                    ? 'You created at ' +
-                      formatDateFull(roomMetadata[item].createdAt)
-                    : null}
-                </Text>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    paddingLeft: 10,
+                  }}>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={{color: '#3a82f6', fontSize: 16}}>
+                      {roomMetadata[item].roomName}
+                    </Text>
+                    {/* Check unread */}
+                    {!!roomUsers &&
+                      !!userJoinRoom &&
+                      Object.keys(roomUsers).includes(item) &&
+                      userJoinRoom[item] !== null &&
+                      Object.keys(roomUsers[item]).includes(userId) &&
+                      Object.keys(roomUsers[item][userId]).includes('readed') &&
+                      roomUsers[item][userId].readed === false && (
+                        <View style={styles.dotView}></View>
+                      )}
+                  </View>
+                  <View style={{flexDirection: 'column'}}>
+                    {!!roomMetadata[item] &&
+                      roomMetadata[item].lastMessage !== undefined &&
+                      roomMetadata[item].lastMessage.message.length > 0 && (
+                        <Text
+                          style={{
+                            color: 'gray',
+                            fontWeight: 'bold',
+                          }}>
+                          {roomMetadata[item].lastMessage.userName + ': '}
+                          {roomMetadata[item].lastMessage.message}
+                        </Text>
+                      )}
+
+                    {roomMetadata[item].createdByUserId ===
+                      getUserProfile()?.uid && (
+                      <Text
+                        style={{
+                          color: 'gray',
+                        }}>
+                        You: created at{' '}
+                        {formatDateFull(roomMetadata[item].createdAt)}
+                      </Text>
+                    )}
+                  </View>
+                </View>
               </View>
             </TouchableOpacity>
           </View>
@@ -261,7 +295,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     borderBottomColor: '#F5FCFF',
     backgroundColor: '#E5E7EB',
-    borderRadius: 3,
+    borderRadius: 20,
     borderBottomWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -269,30 +303,53 @@ const styles = StyleSheet.create({
     margin: 10,
     marginTop: 0,
   },
-  rooms: {textAlign: 'center', fontWeight: 'bold', margin: 5, fontSize: 15},
   inputs: {
     height: 45,
-    marginLeft: 16,
     borderBottomColor: '#FFFFFF',
     flex: 1,
   },
-  saveButton: {
+  createRoomView: {
     marginRight: 10,
     marginTop: 2,
   },
-  roomList: {
+  roomListView: {
     padding: 10,
     backgroundColor: '#F9FAFB',
   },
-  roomBox: {
+  roomBoxView: {
     padding: 10,
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: '#E5E7EB',
     flexDirection: 'column',
     borderRadius: 5,
   },
-  roomRow: {
+  roomAvatarView: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  roomAvatarContainer: {
+    backgroundColor: '#68a0cf',
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#68a0cf',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    margin: 5,
+  },
+  dotView: {
+    marginHorizontal: 10,
+    height: 10,
+    width: 10,
+    backgroundColor: '#ff7c4d',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

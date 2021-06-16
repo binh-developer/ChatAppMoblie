@@ -83,63 +83,28 @@ export default function App() {
           component={LoginScreen}
         />
         <Stack.Screen
-          options={{
-            headerTitle: 'MeChat',
-            headerTitleAlign: 'center',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-              color: '#3a82f6',
-            },
-          }}
+          options={styles.headerCustomStyle}
           name="Register"
           component={RegisterScreen}
         />
         <Stack.Screen
-          options={{
-            headerTitle: 'MeChat',
-            headerTitleAlign: 'center',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-              color: '#3a82f6',
-            },
-          }}
+          options={styles.headerCustomStyle}
           name="ListRoom"
           component={ListRoomScreen}
         />
         <Stack.Screen
-          options={{
-            headerTitle: 'Create Room',
-            headerTitleAlign: 'center',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-              color: '#3a82f6',
-            },
-          }}
+          options={styles.headerCustomStyle}
           name="CreateRoom"
           component={CreateRoom}
         />
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen
-          options={{
-            headerTitle: 'MeChat',
-            headerTitleAlign: 'center',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-              color: '#3a82f6',
-            },
-          }}
+          options={styles.headerCustomStyle}
           name="Profile"
           component={ProfileScreen}
         />
         <Stack.Screen
-          options={{
-            headerTitle: 'Upload',
-            headerTitleAlign: 'center',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-              color: '#3a82f6',
-            },
-          }}
+          options={styles.headerCustomStyle}
           name="Upload"
           component={UploadScreen}
         />
@@ -147,3 +112,20 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+const styles = {
+  headerCustomStyle: {
+    headerTitle: 'MeChat',
+    headerStyle: {
+      elevation: 0,
+      shadowOpacity: 0,
+      borderBottomWidth: 0,
+    },
+    headerTitleStyle: {
+      fontWeight: '900',
+      color: '#3a82f6',
+      elevation: 0, // remove shadow on Android
+      shadowOpacity: 0, // remove shadow on iOS
+    },
+  },
+};

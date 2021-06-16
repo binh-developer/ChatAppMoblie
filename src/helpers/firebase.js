@@ -159,6 +159,7 @@ export function createRoom(roomName) {
     roomType: 'public',
     createdAt: database.ServerValue.TIMESTAMP,
     createdByUserId: auth()?.currentUser?.uid,
+    lastMessageText: '',
   });
 }
 
@@ -268,13 +269,25 @@ export function checkUserSeenMessage(roomId, userId) {
     });
 }
 
-export function sendMessageToRoom(roomId, message) {
+export async function sendMessageToRoom(roomId, message) {
+  const timestamp = database.ServerValue.TIMESTAMP;
+
+  await database()
+    .ref(ROOM_METADATA_COLLECTIONS + `/${roomId}`)
+    .update({
+      lastMessage: {
+        createdAt: timestamp,
+        message: message.messageText.length > 0 ? message.messageText : 'image',
+        userName: auth()?.currentUser?.displayName,
+      },
+    });
+
   return database()
     .ref(ROOM_MESSAGES_COLLECTIONS + `/${roomId}`)
     .push({
       userId: auth()?.currentUser?.uid,
       userName: auth()?.currentUser?.displayName,
-      createdAt: database.ServerValue.TIMESTAMP,
+      createdAt: timestamp,
       ...message,
     });
 }
