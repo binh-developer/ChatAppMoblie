@@ -1,0 +1,68 @@
+import {StyleSheet} from 'react-native';
+
+export default StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F9FAFB',
+  },
+  formContent: {
+    flexDirection: 'row',
+    marginVertical: 5,
+  },
+  inputContainer: {
+    backgroundColor: '#E5E7EB',
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    margin: 10,
+    marginVertical: 0,
+  },
+  inputs: {
+    height: 45,
+    borderBottomColor: '#FFFFFF',
+    flex: 1,
+  },
+  createRoomView: {
+    margin: 10,
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+  },
+  roomListView: {
+    backgroundColor: '#F9FAFB',
+  },
+  roomBoxView: {
+    padding: 10,
+    flexDirection: 'column',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  roomAvatarView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  roomAvatarContainer: {
+    backgroundColor: '#68a0cf',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    margin: 5,
+  },
+  dotView: {
+    marginHorizontal: 10,
+    height: 10,
+    width: 10,
+    backgroundColor: '#ff7c4d',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+});

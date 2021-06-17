@@ -1,11 +1,5 @@
 import React, {useLayoutEffect, useState, useCallback} from 'react';
-import {
-  ActivityIndicator,
-  View,
-  StyleSheet,
-  Platform,
-  Alert,
-} from 'react-native';
+import {ActivityIndicator, View, Platform, Alert} from 'react-native';
 import {
   Actions,
   GiftedChat,
@@ -15,16 +9,17 @@ import {
 } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as ImagePicker from 'react-native-image-picker';
-import PopupMenu from '../components/PopupMenu';
-
-import {sortAsc} from '../utils/arrayUtil';
+import PopupMenu from '../../components/PopupMenu';
+import styles from './styles';
+import {sortAsc} from '../../utils/arrayUtil';
+import {uppercaseFirstLetter} from '../../utils/stringUtil';
 import {
   getUserProfile,
   getMessageRoomById,
   checkUnSeenToAllUsers,
   sendMessageToRoom,
   sendImageMessage,
-} from '../helpers/firebase';
+} from '../../helpers/firebase';
 
 const ChatScreen = ({navigation, route}) => {
   const [messages, setMessages] = useState([]);
@@ -35,8 +30,7 @@ const ChatScreen = ({navigation, route}) => {
     let mounted = true;
 
     navigation.setOptions({
-      headerTitle:
-        roomData.roomName.charAt(0).toUpperCase() + roomData.roomName.slice(1),
+      headerTitle: uppercaseFirstLetter(roomData.roomName),
       headerTitleStyle: {
         color: '#3385ff',
       },
@@ -229,26 +223,3 @@ const ChatScreen = ({navigation, route}) => {
 };
 
 export default ChatScreen;
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sendingContainer: {
-    padding: 4,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
-    alignSelf: 'center',
-    width: 30,
-    height: 30,
-    margin: 8,
-  },
-  bottomComponentContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

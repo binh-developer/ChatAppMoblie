@@ -4,14 +4,14 @@ import {
   SafeAreaView,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Platform,
   Image,
 } from 'react-native';
 import * as ImagePicker from 'react-native-image-picker';
 import * as Progress from 'react-native-progress';
 
-import {getUserProfile, updateAvatar} from '../helpers/firebase';
+import styles from './styles';
+import {getUserProfile, updateAvatar} from '../../helpers/firebase';
 
 export default function UploadAvatarScreen({navigation}) {
   const [image, setImage] = useState(null);
@@ -80,46 +80,3 @@ export default function UploadAvatarScreen({navigation}) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  selectButton: {
-    marginTop: 10,
-    borderRadius: 5,
-    width: 150,
-    height: 50,
-    backgroundColor: '#555555',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  uploadButton: {
-    borderRadius: 5,
-    width: 150,
-    height: 50,
-    backgroundColor: '#3a82f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  imageContainer: {
-    marginTop: 30,
-    marginBottom: 50,
-    alignItems: 'center',
-  },
-  progressBarContainer: {
-    marginTop: 20,
-  },
-  imageBox: {
-    width: 300,
-    height: 300,
-  },
-});

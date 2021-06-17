@@ -10,7 +10,7 @@ import RegisterScreen from './screens/RegisterScreen';
 import ChatScreen from './screens/ChatScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ListRoomScreen from './screens/ListRoomScreen';
-import CreateRoom from './screens/CreateRoom';
+import CreateRoomScreen from './screens/CreateRoomScreen';
 import UploadScreen from './screens/UploadAvatarScreen';
 
 import messaging from '@react-native-firebase/messaging';
@@ -95,7 +95,7 @@ export default function App() {
         <Stack.Screen
           options={styles.headerCustomStyle}
           name="CreateRoom"
-          component={CreateRoom}
+          component={CreateRoomScreen}
         />
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen

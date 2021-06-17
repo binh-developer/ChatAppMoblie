@@ -1,16 +1,12 @@
 import React, {useLayoutEffect, useState} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-} from 'react-native';
+import {Text, View, TouchableOpacity, FlatList, TextInput} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Avatar, Button} from 'react-native-elements';
-import {formatDateFull} from '../utils/timeUtil';
-import PopupMenu from '../components/PopupMenu';
+
+import {formatDateFull} from '../../utils/timeUtil';
+import {uppercaseFirstLetter} from '../../utils/stringUtil';
+import PopupMenu from '../../components/PopupMenu';
+import styles from './styles';
 
 import {
   getRoomMetadata,
@@ -19,7 +15,7 @@ import {
   getUserProfile,
   signUserToRoom,
   checkUserSeenMessage,
-} from '../helpers/firebase';
+} from '../../helpers/firebase';
 
 export default function ListRoomScreen({navigation, route}) {
   const [roomMetadata, setRoomMetadata] = useState({});
@@ -121,38 +117,6 @@ export default function ListRoomScreen({navigation, route}) {
 
   return (
     <View style={styles.container}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'center',
-          margin: 2,
-        }}>
-        <Text
-          style={{
-            textAlign: 'center',
-            fontWeight: 'bold',
-            margin: 5,
-            fontSize: 15,
-            color: '#3a82f6',
-          }}>
-          Room Available
-        </Text>
-
-        <Text
-          style={{
-            fontWeight: 'normal',
-            color: '#1D4ED8',
-            paddingLeft: 6,
-            width: 20,
-            height: 20,
-            backgroundColor: '#DBEAFE',
-            borderRadius: 10,
-          }}>
-          {Object.keys(roomMetadata).length}
-        </Text>
-      </View>
-
       {/* Search Room and Add Room */}
       <View style={styles.formContent}>
         <View style={styles.inputContainer}>
@@ -162,16 +126,19 @@ export default function ListRoomScreen({navigation, route}) {
             size={20}
             color="#989898"
           />
+
           <TextInput
             placeholder="Search"
             placeholderTextColor="#989898"
             onChangeText={text => {
               if (text.length <= 0) {
-                getRoomMetadata().once('value', snapshot => {
-                  if (snapshot !== undefined) {
-                    setRoomMetadata(snapshot.val());
-                  }
-                });
+                getRoomMetadata()
+                  .limitToLast(10)
+                  .once('value', snapshot => {
+                    if (snapshot !== undefined) {
+                      setRoomMetadata(snapshot.val());
+                    }
+                  });
               } else
                 getRoomMetadata()
                   .orderByChild('roomName')
@@ -185,26 +152,26 @@ export default function ListRoomScreen({navigation, route}) {
             }}
             style={styles.inputs}
           />
-        </View>
-
-        {/* Add New Room */}
-        <View style={styles.createRoomView}>
-          <Button
-            icon={{
-              name: 'add',
-              size: 15,
-              color: '#3a82f6',
-            }}
-            buttonStyle={{
-              backgroundColor: '#DBEAFE',
-              borderRadius: 30,
-              width: 40,
-              height: 40,
-            }}
-            onPress={createRoom}
-          />
+          {/* Total Room */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+              margin: 2,
+            }}>
+            <Text
+              style={{
+                fontWeight: 'normal',
+                color: '#989898',
+                margin: 10,
+              }}>
+              All ({Object.keys(roomMetadata).length})
+            </Text>
+          </View>
         </View>
       </View>
+
       {/* List Room */}
       <FlatList
         style={styles.roomListView}
@@ -235,16 +202,12 @@ export default function ListRoomScreen({navigation, route}) {
                       }}
                     />
                   ) : (
-                    <Text
-                      style={{
-                        color: '#fff',
-                        textAlign: 'center',
-                        padding: 12,
-                        width: 45,
-                        height: 45,
-                      }}>
-                      {roomMetadata[item].roomName.charAt(0).toUpperCase()}
-                    </Text>
+                    <Icon
+                      style={{margin: 15}}
+                      name="meeting-room"
+                      size={20}
+                      color="#fff"
+                    />
                   )}
                 </View>
 
@@ -255,9 +218,7 @@ export default function ListRoomScreen({navigation, route}) {
                   }}>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={{color: '#3a82f6', fontSize: 16}}>
-                      Room:{' '}
-                      {roomMetadata[item].roomName.charAt(0).toUpperCase() +
-                        roomMetadata[item].roomName.slice(1)}
+                      {uppercaseFirstLetter(roomMetadata[item].roomName)}
                     </Text>
                     {/* Check unread */}
                     {!!roomUsers &&
@@ -305,75 +266,20 @@ export default function ListRoomScreen({navigation, route}) {
           </View>
         )}
       />
+
+      {/* Add New Room */}
+      <View style={styles.createRoomView}>
+        <Button
+          icon={<Icon name="add" size={25} color="#3a82f6" />}
+          buttonStyle={{
+            backgroundColor: '#DBEAFE',
+            borderRadius: 30,
+            width: 50,
+            height: 50,
+          }}
+          onPress={createRoom}
+        />
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  formContent: {
-    flexDirection: 'row',
-    marginTop: 5,
-  },
-  inputContainer: {
-    borderBottomColor: '#F5FCFF',
-    backgroundColor: '#E5E7EB',
-    borderRadius: 20,
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    margin: 10,
-    marginTop: 0,
-  },
-  inputs: {
-    height: 45,
-    borderBottomColor: '#FFFFFF',
-    flex: 1,
-  },
-  createRoomView: {
-    marginRight: 10,
-    marginTop: 2,
-  },
-  roomListView: {
-    padding: 10,
-    backgroundColor: '#F9FAFB',
-  },
-  roomBoxView: {
-    padding: 10,
-    marginBottom: 10,
-    backgroundColor: '#E5E7EB',
-    flexDirection: 'column',
-    borderRadius: 5,
-  },
-  roomAvatarView: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  roomAvatarContainer: {
-    backgroundColor: '#68a0cf',
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
-    margin: 5,
-  },
-  dotView: {
-    marginHorizontal: 10,
-    height: 10,
-    width: 10,
-    backgroundColor: '#ff7c4d',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-});
