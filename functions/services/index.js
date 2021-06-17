@@ -35,6 +35,7 @@ function detectNewMessages() {
 
               // Config Message
               const message = {
+                topic: roomId,
                 notification: {
                   title: room.roomName,
                   body:
@@ -47,6 +48,12 @@ function detectNewMessages() {
                   // Required for background/quit data-only messages on Android
                   priority: 'high',
                   notification: {
+                    title: room.roomName,
+                    body:
+                      `${lastMessageText.userName}: ` +
+                      (lastMessageText.imageURL.length > 0
+                        ? 'image'
+                        : lastMessageText.messageText),
                     sound: 'default',
                     color: '#0066FF',
                   },
@@ -67,7 +74,6 @@ function detectNewMessages() {
                     },
                   },
                 },
-                topic: roomId,
               };
 
               // Send a message to devices subscribed to the provided topic.
