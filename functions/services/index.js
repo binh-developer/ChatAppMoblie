@@ -158,6 +158,8 @@ function getListTokenDevices() {
     .ref('user-metadata')
     .on('child_changed', snapshot => {
       let userChanged = snapshot.val();
+      let userIdMetadata = snapshot.key;
+
       Object.keys(userChanged.rooms).forEach(roomKey => {
         if (!_.isEmpty(userChanged.deviceId)) {
           if (
@@ -176,6 +178,20 @@ function getListTokenDevices() {
                 );
               });
           }
+        }
+
+        // Detect room not exist and deleted
+        if (!listRoomIds.includes(roomKey)) {
+          admin
+            .database()
+            .ref('user-metadata')
+            .child(userIdMetadata)
+            .child('rooms')
+            .child(roomKey)
+            .remove();
+          winston.info(
+            `${time} Delete room: [${roomKey}] which is not in list room from user: [${userIdMetadata}]`,
+          );
         }
       });
     });
