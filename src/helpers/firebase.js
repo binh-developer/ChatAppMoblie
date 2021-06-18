@@ -159,7 +159,7 @@ export function createRoom(roomName) {
     roomType: 'public',
     createdAt: database.ServerValue.TIMESTAMP,
     createdByUserId: auth()?.currentUser?.uid,
-    lastMessageText: '',
+    lastMessage: '',
     roomAvatar: '',
   });
 }

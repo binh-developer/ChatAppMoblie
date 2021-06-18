@@ -234,6 +234,8 @@ export default function ListRoomScreen({navigation, route}) {
                   <View style={{flexDirection: 'column'}}>
                     {!!roomMetadata[item] &&
                       roomMetadata[item].lastMessage !== undefined &&
+                      roomMetadata[item].lastMessage !== '' &&
+                      roomMetadata[item].lastMessage !== null &&
                       roomMetadata[item].lastMessage.message.length > 0 && (
                         <Text
                           style={{
