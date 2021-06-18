@@ -8,89 +8,127 @@ let time = new Date().toLocaleString('en-US', {
   timeZone: 'Asia/SaiGon',
 });
 
+// Unsubscribe the sender of this topic to avoid get notifications by themself
+async function unsubscribedTopicById(userId, roomId) {
+  let token = await admin
+    .database()
+    .ref('user-metadata')
+    .child(userId)
+    .child('deviceId')
+    .get();
+
+  if (!_.isEmpty(token.val())) {
+    await admin
+      .messaging()
+      .unsubscribeFromTopic(token.val(), roomId)
+      .then(response => {
+        winston.info(
+          `${time} Topic: [${roomId}] Device(s) unsubscribed: [${token.val()}]` +
+            '%o',
+          {...response},
+        );
+      });
+  }
+
+  return token.val();
+}
+
 function detectNewMessages() {
   admin
     .database()
     .ref('room-messages')
-    .on('child_changed', snapshot => {
+    .on('child_changed', async snapshot => {
       let roomId = snapshot.key;
 
       // get new messages
       let {[Object.keys(snapshot.val()).pop()]: lastMessage} = snapshot.val();
-      let lastMessageText = lastMessage;
-      console.log(lastMessageText);
+      let lastMessageData = lastMessage;
+      console.log(lastMessageData);
 
-      admin
-        .database()
-        .ref('room-metadata/' + roomId)
-        .get()
-        .then(snapshot => {
-          // Get Room Info
-          admin
-            .database()
-            .ref('room-metadata/' + roomId)
-            .get()
-            .then(snapshot => {
-              let room = snapshot.val();
+      let unsub = await unsubscribedTopicById(lastMessageData.userId, roomId);
+      if (unsub !== null) {
+        admin
+          .database()
+          .ref('room-metadata/' + roomId)
+          .get()
+          .then(snapshot => {
+            // Get Room Info
+            admin
+              .database()
+              .ref('room-metadata/' + roomId)
+              .get()
+              .then(async snapshot => {
+                let room = snapshot.val();
 
-              // Config Message
-              const message = {
-                topic: roomId,
-                notification: {
-                  title: room.roomName,
-                  body:
-                    `${lastMessageText.userName}: ` +
-                    (lastMessageText.imageURL.length > 0
-                      ? 'image'
-                      : lastMessageText.messageText),
-                },
-                android: {
-                  // Required for background/quit data-only messages on Android
-                  priority: 'high',
+                // Config Message
+                const message = {
+                  topic: roomId,
                   notification: {
                     title: room.roomName,
                     body:
-                      `${lastMessageText.userName}: ` +
-                      (lastMessageText.imageURL.length > 0
+                      `${lastMessageData.userName}: ` +
+                      (lastMessageData.imageURL.length > 0
                         ? 'image'
-                        : lastMessageText.messageText),
-                    sound: 'default',
-                    color: '#0066FF',
+                        : lastMessageData.messageText),
                   },
-                },
-                data: {
-                  roomId,
-                  createdByUserId: room.createdByUserId,
-                  roomName: room.roomName,
-                },
-                apns: {
-                  payload: {
-                    aps: {
-                      alert: {
-                        body: 'New gossips',
-                      },
+                  android: {
+                    // Required for background/quit data-only messages on Android
+                    priority: 'high',
+                    notification: {
+                      title: room.roomName,
+                      body:
+                        `${lastMessageData.userName}: ` +
+                        (lastMessageData.imageURL.length > 0
+                          ? 'image'
+                          : lastMessageData.messageText),
                       sound: 'default',
-                      badge: 1,
+                      color: '#0066FF',
                     },
                   },
-                },
-              };
+                  data: {
+                    roomId,
+                    createdByUserId: room.createdByUserId,
+                    roomName: room.roomName,
+                  },
+                  apns: {
+                    payload: {
+                      aps: {
+                        alert: {
+                          body: 'New gossips',
+                        },
+                        sound: 'default',
+                        badge: 1,
+                      },
+                    },
+                  },
+                };
 
-              // Send a message to devices subscribed to the provided topic.
-              admin
-                .messaging()
-                .send(message)
-                .then(response => {
-                  // Response is a message ID string.
-                  console.log('Successfully sent message:', response);
-                  winston.info(time + ' Success sending: ' + response);
-                })
-                .catch(error => {
-                  console.log('Error sending message:', error);
-                  winston.info(time + ' Error sending: ' + error);
-                });
-            });
-        });
+                // Send a message to devices subscribed to the provided topic.
+                admin
+                  .messaging()
+                  .send(message)
+                  .then(response => {
+                    // Response is a message ID string.
+                    console.log('Successfully sent message:', response);
+                    winston.info(time + ' Success sending: ' + response);
+                    admin
+                      .messaging()
+                      .subscribeToTopic(unsub, roomId)
+                      .then(response => {
+                        winston.info(
+                          `${time} Topic: [${roomId}] Device(s) subscribed: [${unsub}]` +
+                            '%o',
+                          {...response},
+                        );
+                      });
+                  })
+                  .catch(error => {
+                    console.log('Error sending message:', error);
+                    winston.info(time + ' Error sending: ' + error);
+                  });
+              });
+          });
+      }
     });
 }
 
@@ -158,6 +196,8 @@ function getListTokenDevices() {
     .ref('user-metadata')
     .on('child_changed', snapshot => {
       let userChanged = snapshot.val();
+      let userIdMetadata = snapshot.key;
+
       Object.keys(userChanged.rooms).forEach(roomKey => {
         if (!_.isEmpty(userChanged.deviceId)) {
           if (
@@ -176,6 +216,20 @@ function getListTokenDevices() {
                 );
               });
           }
+        }
+
+        // Detect room not exist and deleted
+        if (!listRoomIds.includes(roomKey)) {
+          admin
+            .database()
+            .ref('user-metadata')
+            .child(userIdMetadata)
+            .child('rooms')
+            .child(roomKey)
+            .remove();
+          winston.info(
+            `${time} Delete room: [${roomKey}] which is not in list room from user: [${userIdMetadata}]`,
+          );
         }
       });
     });
