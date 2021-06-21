@@ -8,7 +8,7 @@ let time = new Date().toLocaleString('en-US', {
   timeZone: 'Asia/SaiGon',
 });
 
-// Unsubscribe the sender of this topic to avoid get notifications by themself
+// Unsubscribe the sender of this topic to avoid get notifications by them self
 async function unsubscribedTopicById(userId, roomId) {
   let token = await admin
     .database()
@@ -45,8 +45,12 @@ function detectNewMessages() {
       let lastMessageData = lastMessage;
       console.log(lastMessageData);
 
-      let unsub = await unsubscribedTopicById(lastMessageData.userId, roomId);
-      if (unsub !== null) {
+      // Unsubscribe the sender of this topic to avoid getting notifications by them self
+      let unsubscribeSender = await unsubscribedTopicById(
+        lastMessageData.userId,
+        roomId,
+      );
+      if (unsubscribeSender !== null) {
         admin
           .database()
           .ref('room-metadata/' + roomId)

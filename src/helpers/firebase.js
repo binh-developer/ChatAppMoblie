@@ -222,6 +222,15 @@ export function deleteRoomById(roomId, userId) {
     database()
       .ref(USER_METADATA_COLLECTIONS + `/${userId}/rooms/${roomId}`)
       .remove();
+
+    // Delete storage of Room Id which store file
+    const storageRef = storage().ref('chat-rooms/' + roomId);
+    storageRef.listAll().then(listResults => {
+      const promises = listResults.items.map(item => {
+        return item.delete();
+      });
+      Promise.all(promises);
+    });
   }
 }
 
