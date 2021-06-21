@@ -9,9 +9,10 @@ import {
 } from 'react-native';
 import {Button} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 import styles from './styles';
-import {registerTokenDevice, updateJoinRoom} from '../../helpers/firebase';
+import {registerTokenDevice} from '../../helpers/firebase';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -20,10 +21,15 @@ const LoginScreen = ({navigation}) => {
   const signIn = () => {
     auth()
       .signInWithEmailAndPassword(email, password)
-      .then(userCredential => {
+      .then(async userCredential => {
         // Signed in
+
+        await database()
+          .ref('user-metadata')
+          .child(auth().currentUser.uid)
+          .update({isSignedIn: true});
+
         registerTokenDevice();
-        updateJoinRoom();
         navigation.replace('ListRoom');
       })
       .catch(error => {
@@ -35,7 +41,6 @@ const LoginScreen = ({navigation}) => {
     const subscriber = auth().onAuthStateChanged(function (user) {
       if (user) {
         registerTokenDevice();
-        updateJoinRoom();
         navigation.replace('ListRoom');
       } else {
         navigation.canGoBack() && navigation.popToTop();

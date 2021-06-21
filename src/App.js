@@ -136,6 +136,7 @@ const styles = {
   headerCustomStyle: {
     headerTitle: 'MeChat',
     headerStyle: {
+      backgroundColor: '#F9FAFB',
       elevation: 0,
       shadowOpacity: 0,
       borderBottomWidth: 0,

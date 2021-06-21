@@ -235,6 +235,7 @@ export default function ListRoomScreen({navigation, route}) {
 
                     {!!userJoinRoom &&
                       userJoinRoom[item] !== null &&
+                      Object.keys(userJoinRoom).includes(item) &&
                       userJoinRoom[item].join === false && (
                         <Text
                           style={{

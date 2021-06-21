@@ -56,23 +56,21 @@ const PopupMenu = props => {
           </View>
         ) : null}
         <MenuDivider />
-        <MenuItem
-          style={{
-            justifyContent: 'center',
-          }}
-          onPress={async () => {
-            const updateLogout = await updateLeaveRoom();
-            if (updateLogout) {
-              await logOut()
+        {props.route.name === 'ListRoom' ? (
+          <MenuItem
+            style={{
+              justifyContent: 'center',
+            }}
+            onPress={() => {
+              logOut()
                 .then(() => {
                   props.navigation.replace('Login');
                 })
                 .catch(err => {});
-            }
-          }}>
-          {/* <Icon name="logout" size={20} color="#ff471a" /> */}
-          Logout
-        </MenuItem>
+            }}>
+            Logout
+          </MenuItem>
+        ) : null}
       </Menu>
     </View>
   );

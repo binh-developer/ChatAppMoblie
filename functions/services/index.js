@@ -23,7 +23,7 @@ async function unsubscribedTopicById(userId, roomId) {
       .unsubscribeFromTopic(token.val(), roomId)
       .then(response => {
         winston.info(
-          `${time} Topic: [${roomId}] Device(s) unsubscribed: [${token.val()}]` +
+          `${time} Topic: [${roomId}] Device(s) unsubscribed in mess: [${token.val()}]` +
             '%o',
           {...response},
         );
@@ -113,21 +113,19 @@ function detectNewMessages() {
                   .send(message)
                   .then(response => {
                     // Response is a message ID string.
-                    console.log('Successfully sent message:', response);
                     winston.info(time + ' Success sending: ' + response);
                     admin
                       .messaging()
                       .subscribeToTopic(unsubscribeSender, roomId)
                       .then(response => {
                         winston.info(
-                          `${time} Topic: [${roomId}] Device(s) subscribed: [${unsubscribeSender}]` +
+                          `${time} Topic: [${roomId}] Device(s) subscribed in mess: [${unsubscribeSender}]` +
                             '%o',
                           {...response},
                         );
                       });
                   })
                   .catch(error => {
-                    console.log('Error sending message:', error);
                     winston.info(time + ' Error sending: ' + error);
                   });
               });
@@ -160,12 +158,13 @@ function getListTokenDevices() {
 
           // Loop Get Token from each user
           Object.keys(userMetadata).forEach(key => {
-            if (!_.isEmpty(userMetadata[key].deviceId)) {
-              console.log(userMetadata[key].deviceId);
+            if (
+              !_.isEmpty(userMetadata[key].deviceId) &&
+              userMetadata[key].isSignedIn === true
+            ) {
               if (!_.isEmpty(userMetadata[key].rooms)) {
                 Object.keys(userMetadata[key].rooms).forEach(roomKey => {
                   if (userMetadata[key].rooms[roomKey].join === true) {
-                    // console.log(roomKey);
                     if (_.includes(listRoomIds, roomKey)) {
                       listRoomAndTokens[roomKey].push(
                         userMetadata[key].deviceId,
@@ -187,6 +186,7 @@ function getListTokenDevices() {
                     `${time} Topic: [${roomKey}] Device(s) subscribed: [${listRoomAndTokens[roomKey]}]` +
                       '%o',
                     {...response},
+                    listRoomAndTokens[roomKey],
                   );
                 });
             }
@@ -203,23 +203,22 @@ function getListTokenDevices() {
       let userIdMetadata = snapshot.key;
 
       Object.keys(userChanged.rooms).forEach(roomKey => {
-        if (!_.isEmpty(userChanged.deviceId)) {
-          if (
-            !_.isEmpty(userChanged.rooms) &&
-            userChanged.rooms[roomKey].join === false
-          ) {
-            console.log(userChanged.rooms[roomKey]);
-            admin
-              .messaging()
-              .unsubscribeFromTopic(userChanged.deviceId, roomKey)
-              .then(response => {
-                winston.info(
-                  `${time} Topic: [${roomKey}] Device(s) unsubscribed: [${userChanged.deviceId}]` +
-                    '%o',
-                  {...response},
-                );
-              });
-          }
+        if (
+          userChanged.isSignedIn === true &&
+          !_.isEmpty(userChanged.deviceId) &&
+          !_.isEmpty(userChanged.rooms) &&
+          userChanged.rooms[roomKey].join === false
+        ) {
+          admin
+            .messaging()
+            .unsubscribeFromTopic(userChanged.deviceId, roomKey)
+            .then(response => {
+              winston.info(
+                `${time} Topic: [${roomKey}] Device(s) unsubscribed: [${userChanged.deviceId}]` +
+                  '%o',
+                {...response},
+              );
+            });
         }
 
         // Detect room not exist and deleted
@@ -236,6 +235,31 @@ function getListTokenDevices() {
           );
         }
       });
+
+      if (userChanged.isSignedIn === false) {
+        let token = userChanged.deviceId;
+        listRoomIds.forEach(roomKey => {
+          admin
+            .messaging()
+            .unsubscribeFromTopic(token, roomKey)
+            .then(response => {
+              winston.info(
+                `${time} Topic: [${roomKey}] Device(s) unsubscribed in Logout: [${token}]` +
+                  '%o',
+                {...response},
+              );
+            });
+        });
+
+        admin
+          .database()
+          .ref('user-metadata')
+          .child(userIdMetadata)
+          .child('deviceId')
+          .remove();
+
+        listRoomAndTokens = {};
+      }
     });
 
   detectNewMessages();

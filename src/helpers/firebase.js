@@ -33,7 +33,11 @@ export function createUserAccount(email, password, username) {
     });
 }
 
-export function logOut() {
+export async function logOut() {
+  await database()
+    .ref(USER_METADATA_COLLECTIONS)
+    .child(auth().currentUser.uid)
+    .update({isSignedIn: false});
   return auth().signOut();
 }
 
@@ -93,63 +97,6 @@ export function registerTokenDevice() {
       console.log('An error occurred while retrieving token. ', err);
       // ...
     });
-}
-
-export async function updateLeaveRoom() {
-  var objectKey = [];
-  // await database()
-  //   .ref(USER_METADATA_COLLECTIONS)
-  //   .child(auth()?.currentUser?.uid)
-  //   .update({deviceId: ''});
-
-  await database()
-    .ref(USER_METADATA_COLLECTIONS)
-    .child(auth()?.currentUser?.uid)
-    .child('rooms')
-    .once('value')
-    .then(snapshot => {
-      if (snapshot.val() !== null) {
-        Object.keys(snapshot.val()).forEach(key => objectKey.push(key));
-      }
-    });
-
-  if (objectKey !== []) {
-    objectKey.forEach(key => {
-      database()
-        .ref(USER_METADATA_COLLECTIONS)
-        .child(auth()?.currentUser?.uid)
-        .child('rooms')
-        .child(key)
-        .update({join: false});
-    });
-  }
-  return true;
-}
-
-export async function updateJoinRoom() {
-  var objectKey = [];
-  await database()
-    .ref(USER_METADATA_COLLECTIONS)
-    .child(auth()?.currentUser?.uid)
-    .child('rooms')
-    .once('value')
-    .then(snapshot => {
-      if (snapshot.val() !== null) {
-        Object.keys(snapshot.val()).forEach(key => objectKey.push(key));
-      }
-    });
-
-  if (objectKey !== []) {
-    objectKey.forEach(key => {
-      database()
-        .ref(USER_METADATA_COLLECTIONS)
-        .child(auth()?.currentUser?.uid)
-        .child('rooms')
-        .child(key)
-        .update({join: true});
-    });
-  }
-  return true;
 }
 
 // ROOM
