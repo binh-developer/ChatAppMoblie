@@ -223,60 +223,56 @@ export default function ListRoomScreen({navigation, route}) {
                       {uppercaseFirstLetter(roomMetadata[item].roomName)}
                     </Text>
                     {/* Check unread */}
-                    {!!roomUsers &&
-                      !!userJoinRoom &&
-                      Object.keys(roomUsers).includes(item) &&
+                    {!!userJoinRoom &&
                       userJoinRoom[item] !== null &&
+                      Object.keys(userJoinRoom).includes(item) &&
+                      userJoinRoom[item].join === true &&
+                      !!roomUsers &&
+                      Object.keys(roomUsers).includes(item) &&
                       Object.keys(roomUsers[item]).includes(userId) &&
                       Object.keys(roomUsers[item][userId]).includes('readed') &&
                       roomUsers[item][userId].readed === false && (
                         <View style={styles.dotView}></View>
                       )}
-
-                    {!!userJoinRoom &&
-                      userJoinRoom[item] !== null &&
-                      Object.keys(userJoinRoom).includes(item) &&
-                      userJoinRoom[item].join === false && (
-                        <Text
-                          style={{
-                            color: '#ff7c4d',
-                            fontSize: 14,
-                            fontStyle: 'italic',
-                            fontWeight: 'bold',
-                            marginHorizontal: 10,
-                            marginTop: 2,
-                            shadowColor: '#000',
-                            shadowOffset: {
-                              width: 0,
-                              height: 2,
-                            },
-                            shadowOpacity: 0.25,
-                            shadowRadius: 3.84,
-                            elevation: 5,
-                          }}>
-                          Join
-                        </Text>
-                      )}
                   </View>
                   <View style={{flexDirection: 'column'}}>
-                    {!!roomMetadata[item] &&
-                      roomMetadata[item].lastMessage !== undefined &&
-                      roomMetadata[item].lastMessage !== '' &&
-                      roomMetadata[item].lastMessage !== null &&
-                      roomMetadata[item].lastMessage.message.length > 0 && (
-                        <Text
-                          style={{
-                            color: 'gray',
-                            fontWeight: 'bold',
-                          }}>
-                          {getUserProfile()?.uid ===
-                          roomMetadata[item].lastMessage.userId
-                            ? 'You: '
-                            : roomMetadata[item].lastMessage.userName + ': '}
+                    {(!!userJoinRoom &&
+                      userJoinRoom[item] !== null &&
+                      !Object.keys(userJoinRoom).includes(item)) ||
+                    (Object.keys(userJoinRoom).includes(item) &&
+                      userJoinRoom[item].join === false) ? (
+                      <Text
+                        style={{
+                          color: '#ff7c4d',
+                          fontSize: 14,
+                          fontStyle: 'italic',
+                          fontWeight: 'bold',
+                        }}>
+                        Join room
+                      </Text>
+                    ) : (
+                      <View>
+                        {!!roomMetadata[item] &&
+                          roomMetadata[item].lastMessage !== undefined &&
+                          roomMetadata[item].lastMessage !== '' &&
+                          roomMetadata[item].lastMessage !== null &&
+                          roomMetadata[item].lastMessage.message.length > 0 && (
+                            <Text
+                              style={{
+                                color: 'gray',
+                                fontWeight: 'bold',
+                              }}>
+                              {getUserProfile()?.uid ===
+                              roomMetadata[item].lastMessage.userId
+                                ? 'You: '
+                                : roomMetadata[item].lastMessage.userName +
+                                  ': '}
 
-                          {roomMetadata[item].lastMessage.message}
-                        </Text>
-                      )}
+                              {roomMetadata[item].lastMessage.message}
+                            </Text>
+                          )}
+                      </View>
+                    )}
 
                     {roomMetadata[item].createdByUserId ===
                       getUserProfile()?.uid && (

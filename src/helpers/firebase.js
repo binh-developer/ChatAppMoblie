@@ -136,7 +136,13 @@ export function signUserToRoom(roomId) {
     });
 }
 
-export function unsignedUserToRoom(roomId) {
+export async function unsignedUserToRoom(roomId) {
+  await database()
+    .ref(ROOM_USERS_COLLECTIONS)
+    .child(roomId)
+    .child(auth()?.currentUser?.uid)
+    .remove();
+
   return database()
     .ref(
       USER_METADATA_COLLECTIONS +
