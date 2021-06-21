@@ -117,10 +117,10 @@ function detectNewMessages() {
                     winston.info(time + ' Success sending: ' + response);
                     admin
                       .messaging()
-                      .subscribeToTopic(unsub, roomId)
+                      .subscribeToTopic(unsubscribeSender, roomId)
                       .then(response => {
                         winston.info(
-                          `${time} Topic: [${roomId}] Device(s) subscribed: [${unsub}]` +
+                          `${time} Topic: [${roomId}] Device(s) subscribed: [${unsubscribeSender}]` +
                             '%o',
                           {...response},
                         );

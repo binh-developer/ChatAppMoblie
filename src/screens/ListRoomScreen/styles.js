@@ -24,19 +24,19 @@ export default StyleSheet.create({
     flex: 1,
   },
   createRoomView: {
-    margin: 10,
+    margin: 16,
     position: 'absolute',
     bottom: 0,
     right: 0,
   },
   roomListView: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#e8e8e8',
+    margin: 10,
+    borderRadius: 20,
   },
   roomBoxView: {
-    padding: 10,
+    padding: 5,
     flexDirection: 'column',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   roomAvatarView: {
     flexDirection: 'row',
@@ -51,6 +51,7 @@ export default StyleSheet.create({
     margin: 5,
   },
   dotView: {
+    marginTop: 8,
     marginHorizontal: 10,
     height: 10,
     width: 10,

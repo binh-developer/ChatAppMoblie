@@ -32,7 +32,18 @@ async function requestUserPermission() {
 requestUserPermission();
 
 messaging().setBackgroundMessageHandler(async remoteMessage => {
-  console.log('Background!', remoteMessage);
+  messaging()
+    .getToken()
+    .then(currentToken => {
+      if (currentToken) {
+        console.log(currentToken, 'Background');
+      }
+    });
+  console.log(
+    'Background!',
+
+    remoteMessage,
+  );
 });
 
 const Stack = createStackNavigator();
@@ -66,6 +77,14 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
+      messaging()
+        .getToken()
+        .then(currentToken => {
+          if (currentToken) {
+            console.log(currentToken, 'Foreground');
+          }
+        });
+
       console.log('Foreground!', JSON.stringify(remoteMessage));
     });
 

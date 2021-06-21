@@ -152,24 +152,23 @@ export default function ListRoomScreen({navigation, route}) {
             }}
             style={styles.inputs}
           />
-          {/* Total Room */}
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: 2,
-            }}>
-            <Text
-              style={{
-                fontWeight: 'normal',
-                color: '#989898',
-                margin: 10,
-              }}>
-              All ({Object.keys(roomMetadata).length})
-            </Text>
-          </View>
         </View>
+      </View>
+      {/* Total Room */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginTop: 2,
+        }}>
+        <Text
+          style={{
+            fontWeight: 'bold',
+            color: '#989898',
+          }}>
+          Room Available ({Object.keys(roomMetadata).length})
+        </Text>
       </View>
 
       {/* List Room */}
@@ -216,7 +215,10 @@ export default function ListRoomScreen({navigation, route}) {
                     flexDirection: 'column',
                     paddingLeft: 10,
                   }}>
-                  <View style={{flexDirection: 'row'}}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                    }}>
                     <Text style={{color: '#3a82f6', fontSize: 16}}>
                       {uppercaseFirstLetter(roomMetadata[item].roomName)}
                     </Text>
@@ -229,6 +231,30 @@ export default function ListRoomScreen({navigation, route}) {
                       Object.keys(roomUsers[item][userId]).includes('readed') &&
                       roomUsers[item][userId].readed === false && (
                         <View style={styles.dotView}></View>
+                      )}
+
+                    {!!userJoinRoom &&
+                      userJoinRoom[item] !== null &&
+                      userJoinRoom[item].join === false && (
+                        <Text
+                          style={{
+                            color: '#ff7c4d',
+                            fontSize: 14,
+                            fontStyle: 'italic',
+                            fontWeight: 'bold',
+                            marginHorizontal: 10,
+                            marginTop: 2,
+                            shadowColor: '#000',
+                            shadowOffset: {
+                              width: 0,
+                              height: 2,
+                            },
+                            shadowOpacity: 0.25,
+                            shadowRadius: 3.84,
+                            elevation: 5,
+                          }}>
+                          Join
+                        </Text>
                       )}
                   </View>
                   <View style={{flexDirection: 'column'}}>
@@ -272,13 +298,24 @@ export default function ListRoomScreen({navigation, route}) {
       {/* Add New Room */}
       <View style={styles.createRoomView}>
         <Button
-          icon={<Icon name="add" size={25} color="#3a82f6" />}
-          buttonStyle={{
-            backgroundColor: '#DBEAFE',
-            borderRadius: 30,
-            width: 50,
-            height: 50,
+          icon={
+            <Icon
+              name="create"
+              size={20}
+              color="#3a82f6"
+              style={{marginRight: 5}}
+            />
+          }
+          titleStyle={{
+            color: '#3a82f6',
+            fontSize: 15,
           }}
+          buttonStyle={{
+            backgroundColor: '#DBE0FE',
+            borderRadius: 30,
+            paddingHorizontal: 10,
+          }}
+          title="Create new room"
           onPress={createRoom}
         />
       </View>
