@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const winston = require('../config/winston');
+const winston = require('../../config/winston');
 const {admin} = require('./setup');
 
 let listRoomIds = [];
@@ -160,6 +160,7 @@ function getListTokenDevices() {
           Object.keys(userMetadata).forEach(key => {
             if (
               !_.isEmpty(userMetadata[key].deviceId) &&
+              !_.isEmpty(userMetadata[key].isSignedIn) &&
               userMetadata[key].isSignedIn === true
             ) {
               if (!_.isEmpty(userMetadata[key].rooms)) {

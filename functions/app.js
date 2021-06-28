@@ -1,17 +1,27 @@
 const createError = require('http-errors');
 const express = require('express');
-const path = require('path');
-var morgan = require('morgan');
-var winston = require('./config/winston');
+const morgan = require('morgan');
+const winston = require('./config/winston');
+const {ApolloServer} = require('apollo-server-express');
+
+const typeDefs = require('./services/graphql/typeDefs');
+const resolvers = require('./services/graphql/resolvers');
 
 // import firebase service
-require('./services');
+require('./services/firebase');
 
 const app = express();
 
 app.use(morgan('combined', {stream: winston.stream}));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+});
+
+server.applyMiddleware({app});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
