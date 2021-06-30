@@ -105,7 +105,7 @@ const GetListRoom = props => {
               } else
                 getRoomMetadata()
                   .orderByChild('roomName')
-                  .equalTo(text)
+                  .equalTo(text.toLowerCase())
                   .once('value')
                   .then(snapshot => {
                     if (snapshot.exists()) {

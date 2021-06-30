@@ -1,7 +1,7 @@
 import React, {useLayoutEffect} from 'react';
-import {View, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
 import {Avatar, Button} from 'react-native-elements';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import PopupMenu from '../../components/PopupMenu';
 import GetListRoom from '../../components/GetListRoom.js';
@@ -61,33 +61,37 @@ export default function ListRoomScreen({navigation, route}) {
     navigation.navigate('CreateRoom');
   };
 
+  const goBlogScreen = () => {
+    navigation.navigate('Blog');
+  };
+
   return (
     <View style={styles.container}>
       <GetListRoom />
 
-      {/* Add New Room */}
-      <View style={styles.createRoomView}>
-        <Button
-          icon={
-            <Icon
-              name="create"
-              size={20}
-              color="#3a82f6"
-              style={{marginRight: 5}}
-            />
-          }
-          titleStyle={{
-            color: '#3a82f6',
-            fontSize: 15,
-          }}
-          buttonStyle={{
-            backgroundColor: '#DBE0FE',
-            borderRadius: 30,
-            paddingHorizontal: 10,
-          }}
-          title="Create new room"
-          onPress={createRoom}
-        />
+      <View style={styles.boxBelow}>
+        {/* Blog Screen */}
+        <View style={styles.buttonContainerView}>
+          <Button
+            icon={<Icon name="blogger" size={20} color="#3a82f6" />}
+            titleStyle={styles.titleStyleView}
+            buttonStyle={styles.buttonStyleView}
+            title=""
+            onPress={goBlogScreen}
+          />
+          <Text>Blog</Text>
+        </View>
+        {/* Add New Room */}
+        <View style={styles.buttonContainerView}>
+          <Button
+            icon={<Icon name="pencil" size={20} color="#3a82f6" />}
+            titleStyle={styles.titleStyleView}
+            buttonStyle={styles.buttonStyleView}
+            title=""
+            onPress={createRoom}
+          />
+          <Text>New room</Text>
+        </View>
       </View>
     </View>
   );

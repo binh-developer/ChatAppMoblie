@@ -9,7 +9,6 @@ import {
   deleteRoomById,
   unsignedUserToRoom,
   getUserProfile,
-  updateLeaveRoom,
   logOut,
 } from '../helpers/firebase';
 
