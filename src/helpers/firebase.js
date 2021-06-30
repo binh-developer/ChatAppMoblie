@@ -7,7 +7,6 @@ const ROOM_MESSAGES_COLLECTIONS = 'room-messages';
 const ROOM_METADATA_COLLECTIONS = 'room-metadata';
 const ROOM_USERS_COLLECTIONS = 'room-users';
 const USER_METADATA_COLLECTIONS = 'user-metadata';
-const BLOGS_COLLECTIONS = 'blogs';
 
 // USER
 export function createUserAccount(email, password, username) {
@@ -105,7 +104,6 @@ export function registerTokenDevice() {
 export function createRoom(roomName) {
   return database().ref(ROOM_METADATA_COLLECTIONS).push({
     roomName,
-    roomType: 'public',
     createdAt: database.ServerValue.TIMESTAMP,
     createdByUserId: auth()?.currentUser?.uid,
     lastMessage: '',
@@ -280,18 +278,4 @@ export function sendImageMessage(filename, uploadUri, roomId) {
       });
     },
   );
-}
-
-// BLOGS
-export function createHistorySignedIn() {
-  return database()
-    .ref(BLOGS_COLLECTIONS)
-    .child('signed-in-history')
-    .child(auth()?.currentUser?.uid)
-    .push({
-      title: 'Lorem ipsum dolor',
-      time: database.ServerValue.TIMESTAMP,
-      image: 'https://via.placeholder.com/400x200/FFB6C1/000000',
-      description: 'This is the time you log in this app',
-    });
 }

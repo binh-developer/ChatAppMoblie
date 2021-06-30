@@ -12,8 +12,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import ListRoomScreen from './screens/ListRoomScreen';
 import CreateRoomScreen from './screens/CreateRoomScreen';
 import UploadScreen from './screens/UploadAvatarScreen';
-import BlogScreen from './screens/BlogScreen';
-import BlogDetailScreen from './screens/BlogDetailScreen';
+import TimelineScreen from './screens/TimelineScreen';
 
 import messaging from '@react-native-firebase/messaging';
 
@@ -131,13 +130,8 @@ export default function App() {
         />
         <Stack.Screen
           options={styles.headerCustomStyle}
-          name="Blog"
-          component={BlogScreen}
-        />
-        <Stack.Screen
-          options={styles.headerCustomStyle}
-          name="BlogDetail"
-          component={BlogDetailScreen}
+          name="Timeline"
+          component={TimelineScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

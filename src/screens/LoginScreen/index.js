@@ -12,7 +12,10 @@ import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 
 import styles from './styles';
-import {registerTokenDevice} from '../../helpers/firebase';
+import {
+  registerTokenDevice,
+  createHistorySignedIn,
+} from '../../helpers/firebase';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -28,7 +31,6 @@ const LoginScreen = ({navigation}) => {
           .ref('user-metadata')
           .child(auth().currentUser.uid)
           .update({isSignedIn: true});
-
         registerTokenDevice();
         navigation.replace('ListRoom');
       })
