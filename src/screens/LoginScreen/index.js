@@ -12,10 +12,7 @@ import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 
 import styles from './styles';
-import {
-  registerTokenDevice,
-  createHistorySignedIn,
-} from '../../helpers/firebase';
+import {registerTokenDevice} from '../../helpers/firebase';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -32,7 +29,7 @@ const LoginScreen = ({navigation}) => {
           .child(auth().currentUser.uid)
           .update({isSignedIn: true});
         registerTokenDevice();
-        navigation.replace('ListRoom');
+        navigation.replace('Home');
       })
       .catch(error => {
         alert(error.message);
@@ -43,7 +40,7 @@ const LoginScreen = ({navigation}) => {
     const subscriber = auth().onAuthStateChanged(function (user) {
       if (user) {
         registerTokenDevice();
-        navigation.replace('ListRoom');
+        navigation.replace('Home');
       } else {
         navigation.canGoBack() && navigation.popToTop();
       }

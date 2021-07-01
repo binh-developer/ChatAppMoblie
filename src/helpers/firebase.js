@@ -297,3 +297,21 @@ export function getTimeline() {
 export function deleteStatus(statusId) {
   return database().ref(TIMELINE_COLLECTIONS).child(statusId).remove();
 }
+
+export async function likeStatus(statusId) {
+  return await database()
+    .ref(TIMELINE_COLLECTIONS)
+    .child(statusId)
+    .child('likes')
+    .orderByChild('userId')
+    .equalTo(getUserProfile()?.uid)
+    .once('value', snapshot => {
+      if (snapshot.val() === null) {
+        database()
+          .ref(TIMELINE_COLLECTIONS)
+          .child(statusId)
+          .child('likes')
+          .push({userId: auth()?.currentUser?.uid});
+      }
+    });
+}

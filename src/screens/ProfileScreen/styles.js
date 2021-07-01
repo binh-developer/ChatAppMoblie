@@ -5,15 +5,26 @@ export default StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  titleStyle: {
+    alignSelf: 'center',
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#3a82f6',
+    margin: 5,
+  },
   cardTittle: {
-    color: '#808080',
-    fontSize: 15,
-    marginBottom: 5,
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#3a82f6',
+    marginVertical: 5,
   },
   avatar: {
     width: 150,
     height: 150,
     borderRadius: 100,
+    borderWidth: 5,
+    borderColor: '#fbfbfb',
+    position: 'absolute',
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -27,25 +38,10 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  name: {
-    marginTop: 10,
-    fontSize: 22,
-    color: '#808080',
-  },
-  photosContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    height: 'auto',
-  },
-  photosCard: {
-    backgroundColor: '#FFFFFF',
+  functionStyle: {
+    flexDirection: 'column',
+    backgroundColor: 'white',
     borderRadius: 10,
     padding: 10,
-  },
-  photo: {
-    width: 113,
-    height: 113,
-    marginTop: 5,
-    marginRight: 5,
   },
 });

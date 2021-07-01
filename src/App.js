@@ -14,6 +14,7 @@ import CreateRoomScreen from './screens/CreateRoomScreen';
 import UploadScreen from './screens/UploadAvatarScreen';
 import TimelineScreen from './screens/TimelineScreen';
 import CreateStatusScreen from './screens/CreateStatusScreen';
+import HomeScreen from './screens/HomeScreen';
 
 import messaging from '@react-native-firebase/messaging';
 
@@ -107,6 +108,11 @@ export default function App() {
           options={styles.headerCustomStyle}
           name="Register"
           component={RegisterScreen}
+        />
+        <Stack.Screen
+          options={{headerShown: false}}
+          name="Home"
+          component={HomeScreen}
         />
         <Stack.Screen
           options={styles.headerCustomStyle}

@@ -14,6 +14,7 @@ import {
   getTimeline,
   deleteStatus,
   getUserProfile,
+  likeStatus,
 } from '../../helpers/firebase';
 import {formatDateFull} from '../../utils/timeUtil';
 import {sortAsc} from '../../utils/arrayUtil';
@@ -24,23 +25,26 @@ export default function TimelineScreen({navigation}) {
   useEffect(() => {
     let mounted = true;
 
-    const timeline = getTimeline().on('value', snapshot => {
-      if (snapshot !== undefined) {
-        if (mounted) {
-          let data = snapshot.val();
-          let rawMessage = Object.keys(data).map((key, index) => ({
-            _id: key,
-            userId: data[key].userId,
-            userName: data[key].userName,
-            status: data[key].status,
-            imageURL: data[key].imageURL,
-            createdAt: data[key].createdAt,
-          }));
+    const timeline = getTimeline()
+      .limitToLast(100)
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          if (mounted) {
+            let data = snapshot.val();
+            let rawMessage = Object.keys(data).map((key, index) => ({
+              _id: key,
+              userId: data[key].userId,
+              userName: data[key].userName,
+              status: data[key].status,
+              imageURL: data[key].imageURL,
+              likes: data[key].likes,
+              createdAt: data[key].createdAt,
+            }));
 
-          setListTimeline(sortAsc(rawMessage));
+            setListTimeline(sortAsc(rawMessage));
+          }
         }
-      }
-    });
+      });
     return timeline, () => (mounted = false);
   }, []);
 
@@ -48,8 +52,12 @@ export default function TimelineScreen({navigation}) {
     navigation.navigate('Status');
   };
 
-  const deleteItem = itemId => {
-    deleteStatus(itemId);
+  const toDeleteStatus = statusId => {
+    deleteStatus(statusId);
+  };
+
+  const toLikeStatus = statusId => {
+    likeStatus(statusId);
   };
 
   return (
@@ -57,7 +65,9 @@ export default function TimelineScreen({navigation}) {
       {/* Create timeline */}
 
       <View style={styles.createStatus}>
-        <Text>How are you today ?</Text>
+        <Text style={{color: '#808080', fontStyle: 'italic'}}>
+          How are you today ?
+        </Text>
         <Button
           icon={<Icon name="pencil" size={20} color="#3a82f6" />}
           titleStyle={styles.titleStyleView}
@@ -110,9 +120,16 @@ export default function TimelineScreen({navigation}) {
                         }
                         titleStyle={styles.socialBarTitleStyle}
                         buttonStyle={styles.socialBarButtonStyle}
-                        title="12"
-                        onPress={() => console.log('like clicked')}
+                        title=""
+                        onPress={() => toLikeStatus(listTimeline[item]._id)}
                       />
+                      {!!listTimeline[item].likes ? (
+                        <Text>
+                          {Object.keys(listTimeline[item].likes).length}
+                        </Text>
+                      ) : (
+                        <Text>0</Text>
+                      )}
                       {listTimeline[item].userId === getUserProfile()?.uid && (
                         <Button
                           icon={
@@ -121,7 +138,7 @@ export default function TimelineScreen({navigation}) {
                           titleStyle={styles.socialBarTitleStyle}
                           buttonStyle={styles.socialBarButtonStyle}
                           title=""
-                          onPress={() => deleteItem(listTimeline[item]._id)}
+                          onPress={() => toDeleteStatus(listTimeline[item]._id)}
                         />
                       )}
                     </TouchableOpacity>
@@ -147,16 +164,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   list: {
-    paddingHorizontal: 5,
+    margin: 5,
   },
   separator: {
-    marginTop: 10,
+    margin: 5,
   },
   /******* create status *******/
   createStatus: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#ADD8E6',
   },
   buttonStyleView: {
     backgroundColor: 'transparent',
@@ -195,7 +213,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 10,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     borderTopColor: 'white',

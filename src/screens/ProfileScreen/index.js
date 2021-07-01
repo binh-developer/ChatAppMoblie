@@ -1,75 +1,61 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {Text, View, Image, ScrollView} from 'react-native';
-import {Button} from 'react-native-elements';
-import auth from '@react-native-firebase/auth';
+
+import {logOut, getUserProfile} from '../../helpers/firebase';
 import styles from './styles';
 
 const ProfileScreen = ({navigation}) => {
-  // Set an initializing state whilst Firebase connects
-  const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
-
-  // Handle user state changes
-  function onAuthStateChanged(user) {
-    setUser(user);
-    if (initializing) setInitializing(false);
-  }
-
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-
-    return subscriber; // unsubscribe on unmount
-  }, []);
-
-  if (initializing) return null;
-
-  if (!user) {
-    return (
-      <View>
-        <Text>Login</Text>
-      </View>
-    );
-  }
+  const toLogout = () => {
+    logOut()
+      .then(() => {
+        navigation.replace('Login');
+      })
+      .catch(err => {});
+  };
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <View style={[styles.card, styles.profileCard]}>
-          <Image
-            style={styles.avatar}
-            source={{uri: user.photoURL ? user.photoURL : undefined}}
-          />
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTittle}>Bio</Text>
-          <Text>Email: {user.email}</Text>
-          <Text>Username: {user.displayName}</Text>
-        </View>
-
-        <View style={styles.photosCard}>
-          <Text style={styles.cardTittle}>Photos</Text>
-          <View style={styles.photosContainer}>
+        <Text style={styles.titleStyle}>Profile</Text>
+        {!!getUserProfile() && (
+          <View style={[styles.card, styles.profileCard]}>
             <Image
-              style={styles.photo}
+              style={styles.avatar}
               source={{
-                uri: user.photoURL ? user.photoURL : undefined,
+                uri: getUserProfile()?.photoURL
+                  ? getUserProfile()?.photoURL
+                  : undefined,
               }}
             />
           </View>
-        </View>
+        )}
 
-        <View style={styles.card}>
-          <Button
-            buttonStyle={{
-              backgroundColor: '#3a82f6',
-              borderRadius: 5,
-              marginHorizontal: 100,
-              marginTop: 10,
+        {!!getUserProfile() && (
+          <View style={styles.card}>
+            <Text style={styles.cardTittle}>Bio</Text>
+            <Text>Email: {getUserProfile()?.email}</Text>
+            <Text>Username: {getUserProfile()?.displayName}</Text>
+          </View>
+        )}
+        <View style={styles.functionStyle}>
+          <Text style={styles.cardTittle}>Setting</Text>
+          <Text
+            style={{
+              color: '#3a82f6',
+              marginVertical: 10,
             }}
-            onPress={() => navigation.navigate('Upload')}
-            title="Update Avatar"
-          />
+            onPress={() => navigation.navigate('Upload')}>
+            Update Avatar
+          </Text>
+          <Text
+            style={{
+              color: 'tomato',
+              marginVertical: 10,
+            }}
+            onPress={() => toLogout()}
+            title="">
+            Logout
+          </Text>
         </View>
       </View>
     </ScrollView>
