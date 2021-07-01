@@ -160,7 +160,6 @@ function getListTokenDevices() {
           Object.keys(userMetadata).forEach(key => {
             if (
               !_.isEmpty(userMetadata[key].deviceId) &&
-              !_.isEmpty(userMetadata[key].isSignedIn) &&
               userMetadata[key].isSignedIn === true
             ) {
               if (!_.isEmpty(userMetadata[key].rooms)) {
