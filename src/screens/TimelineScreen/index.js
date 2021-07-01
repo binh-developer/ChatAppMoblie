@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,100 +10,135 @@ import {
 import {Button} from 'react-native-elements';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {
+  getTimeline,
+  deleteStatus,
+  getUserProfile,
+} from '../../helpers/firebase';
+import {formatDateFull} from '../../utils/timeUtil';
+import {sortAsc} from '../../utils/arrayUtil';
 
-export default class Blog extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: [
-        {
-          id: 1,
-          title: 'User 1',
-          time: '2018-08-01 12:15 pm',
-          image: 'https://via.placeholder.com/400x200/FFB6C1/000000',
-          description: 'I love those day',
-        },
-        {
-          id: 2,
-          title: 'Sit amet, consectetuer',
-          time: '2018-08-12 12:00 pm',
-          image: 'https://via.placeholder.com/400x200/7B68EE/000000',
-          description:
-            'Lorem  dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula...',
-        },
-        {
-          id: 3,
-          title: 'Dipiscing elit. Aenean ',
-          time: '2017-08-05 12:21 pm',
-          image: 'https://via.placeholder.com/400x200/000080/000000',
-          description:
-            'Lorem ipsum dolor sit , consectetuer  elit. Aenean commodo ligula...',
-        },
-      ],
-    };
-  }
+export default function TimelineScreen({navigation}) {
+  const [listTimeline, setListTimeline] = useState([]);
 
-  render() {
-    return (
-      <View style={styles.container}>
-        {/* Create timeline */}
+  useEffect(() => {
+    let mounted = true;
 
-        <View style={styles.createStatus}>
-          <Text>How are you today ?</Text>
-          <Button
-            icon={<Icon name="pencil" size={20} color="#3a82f6" />}
-            titleStyle={styles.titleStyleView}
-            buttonStyle={styles.buttonStyleView}
-            title="Add status"
-            onPress={() => console.log('click')}
-          />
-        </View>
+    const timeline = getTimeline().on('value', snapshot => {
+      if (snapshot !== undefined) {
+        if (mounted) {
+          let data = snapshot.val();
+          let rawMessage = Object.keys(data).map((key, index) => ({
+            _id: key,
+            userId: data[key].userId,
+            userName: data[key].userName,
+            status: data[key].status,
+            imageURL: data[key].imageURL,
+            createdAt: data[key].createdAt,
+          }));
 
-        <FlatList
-          style={styles.list}
-          data={this.state.data}
-          keyExtractor={item => {
-            return item.id;
-          }}
-          ItemSeparatorComponent={() => {
-            return <View style={styles.separator} />;
-          }}
-          renderItem={post => {
-            const item = post.item;
-            return (
-              <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <View>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.description}>{item.description}</Text>
-                  </View>
+          setListTimeline(sortAsc(rawMessage));
+        }
+      }
+    });
+    return timeline, () => (mounted = false);
+  }, []);
+
+  const newTimeline = () => {
+    navigation.navigate('Status');
+  };
+
+  const deleteItem = itemId => {
+    deleteStatus(itemId);
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* Create timeline */}
+
+      <View style={styles.createStatus}>
+        <Text>How are you today ?</Text>
+        <Button
+          icon={<Icon name="pencil" size={20} color="#3a82f6" />}
+          titleStyle={styles.titleStyleView}
+          buttonStyle={styles.buttonStyleView}
+          title="Add status"
+          onPress={() => newTimeline()}
+        />
+      </View>
+
+      <FlatList
+        style={styles.list}
+        data={Object.keys(listTimeline)}
+        extraData={Object.keys(listTimeline)}
+        keyExtractor={(item, index) => item}
+        ItemSeparatorComponent={() => {
+          return <View style={styles.separator} />;
+        }}
+        renderItem={({item}) => {
+          return (
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <View>
+                  <Text style={styles.title}>
+                    {listTimeline[item].userName}
+                  </Text>
+                  <Text style={styles.description}>
+                    {listTimeline[item].status}
+                  </Text>
                 </View>
-                <Image style={styles.cardImage} source={{uri: item.image}} />
-                <View style={styles.cardFooter}>
-                  <View style={styles.socialBarContainer}>
-                    <View style={styles.socialBarSection}>
-                      <TouchableOpacity style={styles.socialBarButton}>
-                        <Icon
-                          name="thumb-up-outline"
-                          size={20}
-                          color="#3a82f6"
+              </View>
+              {listTimeline[item].imageURL !== undefined && (
+                <Image
+                  style={styles.cardImage}
+                  source={{
+                    uri: listTimeline[item].imageURL,
+                  }}
+                />
+              )}
+              <View style={styles.cardFooter}>
+                <View style={styles.socialBarContainer}>
+                  <View style={styles.socialBarSection}>
+                    <TouchableOpacity style={styles.socialBarButton}>
+                      <Button
+                        icon={
+                          <Icon
+                            name="thumb-up-outline"
+                            size={20}
+                            color="#3a82f6"
+                          />
+                        }
+                        titleStyle={styles.socialBarTitleStyle}
+                        buttonStyle={styles.socialBarButtonStyle}
+                        title="12"
+                        onPress={() => console.log('like clicked')}
+                      />
+                      {listTimeline[item].userId === getUserProfile()?.uid && (
+                        <Button
+                          icon={
+                            <Icon name="delete" size={20} color="#ff3333" />
+                          }
+                          titleStyle={styles.socialBarTitleStyle}
+                          buttonStyle={styles.socialBarButtonStyle}
+                          title=""
+                          onPress={() => deleteItem(listTimeline[item]._id)}
                         />
-                        <Text style={styles.socialBarLabel}>78 likes</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.timeContainer}>
-                      <Icon name="calendar" size={20} color="#3a82f6" />
-                      <Text style={styles.time}>{item.time}</Text>
-                    </View>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.timeContainer}>
+                    <Text style={styles.time}>
+                      {formatDateFull(listTimeline[item].createdAt)}
+                    </Text>
                   </View>
                 </View>
               </View>
-            );
-          }}
-        />
-      </View>
-    );
-  }
+            </View>
+          );
+        }}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -115,7 +150,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   separator: {
-    // marginTop: 10,
+    marginTop: 10,
   },
   /******* create status *******/
   createStatus: {
@@ -139,13 +174,14 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.5,
     shadowRadius: 4,
-    marginVertical: 8,
-    backgroundColor: 'white',
+    backgroundColor: '#f2f2f2',
     borderRadius: 10,
+    borderColor: 'white',
+    borderWidth: 1,
   },
   cardHeader: {
-    paddingVertical: 17,
-    paddingHorizontal: 16,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
     borderTopLeftRadius: 1,
     borderTopRightRadius: 1,
     flexDirection: 'row',
@@ -156,18 +192,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   cardFooter: {
+    backgroundColor: '#f2f2f2',
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 10,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    borderTopColor: 'white',
+    borderTopWidth: 1,
   },
   cardImage: {
     flex: 1,
-    height: 150,
+    height: 500,
     width: null,
+    margin: 5,
   },
   /******** card components **************/
   title: {
-    fontSize: 18,
+    fontSize: 15,
     flex: 1,
   },
   description: {
@@ -179,8 +221,8 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 13,
-    color: '#808080',
-    marginHorizontal: 10,
+    color: 'black',
+    marginHorizontal: 20,
   },
   icon: {
     width: 25,
@@ -217,5 +259,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  socialBarButtonStyle: {
+    backgroundColor: 'transparent',
+    paddingHorizontal: 10,
+    marginHorizontal: 10,
+  },
+  socialBarTitleStyle: {
+    color: '#3a82f6',
+    fontSize: 15,
+    marginHorizontal: 5,
   },
 });

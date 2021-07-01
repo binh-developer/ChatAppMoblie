@@ -13,6 +13,7 @@ import ListRoomScreen from './screens/ListRoomScreen';
 import CreateRoomScreen from './screens/CreateRoomScreen';
 import UploadScreen from './screens/UploadAvatarScreen';
 import TimelineScreen from './screens/TimelineScreen';
+import CreateStatusScreen from './screens/CreateStatusScreen';
 
 import messaging from '@react-native-firebase/messaging';
 
@@ -132,6 +133,11 @@ export default function App() {
           options={styles.headerCustomStyle}
           name="Timeline"
           component={TimelineScreen}
+        />
+        <Stack.Screen
+          options={styles.headerCustomStyle}
+          name="Status"
+          component={CreateStatusScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -7,6 +7,7 @@ const ROOM_MESSAGES_COLLECTIONS = 'room-messages';
 const ROOM_METADATA_COLLECTIONS = 'room-metadata';
 const ROOM_USERS_COLLECTIONS = 'room-users';
 const USER_METADATA_COLLECTIONS = 'user-metadata';
+const TIMELINE_COLLECTIONS = 'timeline';
 
 // USER
 export function createUserAccount(email, password, username) {
@@ -278,4 +279,21 @@ export function sendImageMessage(filename, uploadUri, roomId) {
       });
     },
   );
+}
+
+export function createTimeline(data) {
+  return database().ref(TIMELINE_COLLECTIONS).push({
+    userId: auth()?.currentUser?.uid,
+    userName: auth()?.currentUser?.displayName,
+    createdAt: database.ServerValue.TIMESTAMP,
+    status: data.status,
+  });
+}
+
+export function getTimeline() {
+  return database().ref(TIMELINE_COLLECTIONS);
+}
+
+export function deleteStatus(statusId) {
+  return database().ref(TIMELINE_COLLECTIONS).child(statusId).remove();
 }
