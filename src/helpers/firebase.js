@@ -298,8 +298,8 @@ export function deleteStatus(statusId) {
   return database().ref(TIMELINE_COLLECTIONS).child(statusId).remove();
 }
 
-export async function likeStatus(statusId) {
-  return await database()
+export async function likeAndUnlikeStatus(statusId) {
+  const status = await database()
     .ref(TIMELINE_COLLECTIONS)
     .child(statusId)
     .child('likes')
@@ -307,11 +307,19 @@ export async function likeStatus(statusId) {
     .equalTo(getUserProfile()?.uid)
     .once('value', snapshot => {
       if (snapshot.val() === null) {
-        database()
+        return database()
           .ref(TIMELINE_COLLECTIONS)
           .child(statusId)
           .child('likes')
           .push({userId: auth()?.currentUser?.uid});
+      } else {
+        return database()
+          .ref(TIMELINE_COLLECTIONS)
+          .child(statusId)
+          .child('likes')
+          .child(Object.keys(snapshot.val())[0])
+          .remove();
       }
     });
+  return status;
 }

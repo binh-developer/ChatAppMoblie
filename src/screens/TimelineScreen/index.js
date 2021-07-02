@@ -3,9 +3,9 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
   Image,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
 import {Button} from 'react-native-elements';
 
@@ -14,7 +14,7 @@ import {
   getTimeline,
   deleteStatus,
   getUserProfile,
-  likeStatus,
+  likeAndUnlikeStatus,
 } from '../../helpers/firebase';
 import {formatDateFull} from '../../utils/timeUtil';
 import {sortAsc} from '../../utils/arrayUtil';
@@ -56,8 +56,20 @@ export default function TimelineScreen({navigation}) {
     deleteStatus(statusId);
   };
 
-  const toLikeStatus = statusId => {
-    likeStatus(statusId);
+  const toLikeAndUnlikeStatus = async statusId => {
+    await likeAndUnlikeStatus(statusId);
+  };
+
+  const checkLiked = listLiked => {
+    let temp = false;
+    Object.keys(listLiked).forEach(key => {
+      if (listLiked[key].userId === getUserProfile()?.uid) {
+        temp = true;
+      }
+    });
+    if (temp) {
+      return true;
+    } else return false;
   };
 
   return (
@@ -109,31 +121,67 @@ export default function TimelineScreen({navigation}) {
               <View style={styles.cardFooter}>
                 <View style={styles.socialBarContainer}>
                   <View style={styles.socialBarSection}>
-                    <TouchableOpacity style={styles.socialBarButton}>
-                      <Button
-                        icon={
+                    <View style={styles.socialBarButton}>
+                      {!!listTimeline[item].likes ? (
+                        <TouchableOpacity
+                          style={{
+                            marginVertical: 10,
+                          }}
+                          onPress={() =>
+                            toLikeAndUnlikeStatus(listTimeline[item]._id)
+                          }>
+                          {checkLiked(listTimeline[item].likes) ? (
+                            <View style={{flexDirection: 'row'}}>
+                              <Text
+                                style={{
+                                  color: 'blue',
+                                  marginHorizontal: 5,
+                                }}>
+                                {Object.keys(listTimeline[item].likes).length}
+                              </Text>
+                              <Icon name="thumb-up" size={18} color="#3a82f6" />
+                            </View>
+                          ) : (
+                            <View style={{flexDirection: 'row'}}>
+                              <Text
+                                style={{
+                                  color: 'black',
+                                  marginHorizontal: 5,
+                                }}>
+                                {Object.keys(listTimeline[item].likes).length}
+                              </Text>
+                              <Icon
+                                name="thumb-up-outline"
+                                size={18}
+                                color="#3a82f6"
+                              />
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            margin: 10,
+                          }}
+                          onPress={() =>
+                            toLikeAndUnlikeStatus(listTimeline[item]._id)
+                          }>
+                          <Text style={{marginHorizontal: 10}}>0</Text>
                           <Icon
                             name="thumb-up-outline"
-                            size={20}
+                            size={18}
                             color="#3a82f6"
                           />
-                        }
-                        titleStyle={styles.socialBarTitleStyle}
-                        buttonStyle={styles.socialBarButtonStyle}
-                        title=""
-                        onPress={() => toLikeStatus(listTimeline[item]._id)}
-                      />
-                      {!!listTimeline[item].likes ? (
-                        <Text>
-                          {Object.keys(listTimeline[item].likes).length}
-                        </Text>
-                      ) : (
-                        <Text>0</Text>
+                        </TouchableOpacity>
                       )}
+
+                      {/* Delete Status */}
                       {listTimeline[item].userId === getUserProfile()?.uid && (
                         <Button
                           icon={
-                            <Icon name="delete" size={20} color="#ff3333" />
+                            <Icon name="delete" size={18} color="#ff3333" />
                           }
                           titleStyle={styles.socialBarTitleStyle}
                           buttonStyle={styles.socialBarButtonStyle}
@@ -141,7 +189,7 @@ export default function TimelineScreen({navigation}) {
                           onPress={() => toDeleteStatus(listTimeline[item]._id)}
                         />
                       )}
-                    </TouchableOpacity>
+                    </View>
                   </View>
                   <View style={styles.timeContainer}>
                     <Text style={styles.time}>
