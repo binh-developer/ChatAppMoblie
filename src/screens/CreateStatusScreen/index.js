@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {
   Keyboard,
-  Text,
   View,
   TextInput,
   TouchableWithoutFeedback,
@@ -13,9 +12,10 @@ import styles from './styles';
 
 const CreateStatusScreen = ({navigation: {goBack}}) => {
   const [status, setStatus] = useState('');
+  const [imageURL, setImageURL] = useState('');
 
   const onCreate = () => {
-    createTimeline({status});
+    createTimeline({status, imageURL});
     goBack();
   };
 
@@ -33,6 +33,13 @@ const CreateStatusScreen = ({navigation: {goBack}}) => {
               style={styles.statusFormTextInput}
               values={status}
               onChangeText={text => setStatus(text)}
+            />
+            <TextInput
+              placeholder="Your image url is ..."
+              placeholderColor="#c4c3cb"
+              style={styles.imageFormTextInput}
+              values={imageURL}
+              onChangeText={text => setImageURL(text)}
             />
             <Button
               buttonStyle={styles.statusButton}

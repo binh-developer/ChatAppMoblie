@@ -287,6 +287,7 @@ export function createTimeline(data) {
     userName: auth()?.currentUser?.displayName,
     createdAt: database.ServerValue.TIMESTAMP,
     status: data.status,
+    imageURL: data.imageURL,
   });
 }
 
@@ -306,13 +307,16 @@ export async function likeAndUnlikeStatus(statusId) {
     .orderByChild('userId')
     .equalTo(getUserProfile()?.uid)
     .once('value', snapshot => {
+      // If user have not liked yet
       if (snapshot.val() === null) {
         return database()
           .ref(TIMELINE_COLLECTIONS)
           .child(statusId)
           .child('likes')
           .push({userId: auth()?.currentUser?.uid});
-      } else {
+      }
+      // If user liked, unlike
+      else {
         return database()
           .ref(TIMELINE_COLLECTIONS)
           .child(statusId)

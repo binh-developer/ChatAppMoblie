@@ -55,7 +55,7 @@ const PopupMenu = props => {
           </View>
         ) : null}
         <MenuDivider />
-        {props.route.name === 'ListRoom' ? (
+        {props.route.name === 'Timeline' ? (
           <MenuItem
             style={{
               justifyContent: 'center',
