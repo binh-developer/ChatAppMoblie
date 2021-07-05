@@ -20,13 +20,21 @@ import {sortAsc} from '../../utils/arrayUtil';
 import styles from './styles';
 
 export default function TimelineScreen({navigation}) {
+  let listTimelineRef;
   const [listTimeline, setListTimeline] = useState([]);
+  // Default is just 24h ago
+  const [createdTime, setCreatedTime] = useState(
+    new Date().getTime() - 24 * 60 * 60 * 1000,
+  );
+  const [limit, setLimit] = useState(100);
 
   useEffect(() => {
     let mounted = true;
 
     const timeline = getTimeline()
-      .limitToLast(100)
+      .orderByChild('createdAt')
+      .limitToLast(limit)
+      .startAt(createdTime)
       .on('value', snapshot => {
         if (snapshot !== undefined) {
           if (mounted) {
@@ -40,7 +48,6 @@ export default function TimelineScreen({navigation}) {
               likes: data[key].likes,
               createdAt: data[key].createdAt,
             }));
-
             setListTimeline(sortAsc(rawMessage));
           }
         }
@@ -92,6 +99,53 @@ export default function TimelineScreen({navigation}) {
     } else return false;
   };
 
+  const handleEndReached = () => {
+    setCreatedTime(createdTime - 24 * 60 * 60 * 1000 * 3);
+    getTimeline()
+      .orderByChild('createdAt')
+      .limitToLast(limit)
+      .startAt(createdTime)
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          let data = snapshot.val();
+          let rawMessage = Object.keys(data).map((key, index) => ({
+            _id: key,
+            userId: data[key].userId,
+            userName: data[key].userName,
+            status: data[key].status,
+            imageURL: data[key].imageURL,
+            likes: data[key].likes,
+            createdAt: data[key].createdAt,
+          }));
+          setListTimeline(sortAsc(rawMessage));
+        }
+      });
+  };
+
+  const handleButtonToTop = async () => {
+    listTimelineRef.scrollToOffset({offSet: 0, animated: true});
+    setCreatedTime(new Date().getTime() - 24 * 60 * 60 * 1000);
+    await getTimeline()
+      .orderByChild('createdAt')
+      .startAt(createdTime)
+      .limitToLast(limit)
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          let data = snapshot.val();
+          let rawMessage = Object.keys(data).map((key, index) => ({
+            _id: key,
+            userId: data[key].userId,
+            userName: data[key].userName,
+            status: data[key].status,
+            imageURL: data[key].imageURL,
+            likes: data[key].likes,
+            createdAt: data[key].createdAt,
+          }));
+          setListTimeline(sortAsc(rawMessage));
+        }
+      });
+  };
+
   return (
     <View style={styles.container}>
       {/* Create timeline */}
@@ -118,7 +172,9 @@ export default function TimelineScreen({navigation}) {
           </Text>
           <View style={{flexDirection: 'row'}}>
             <Icon name="pencil" size={18} color="#3a82f6" />
-            <Text style={{color: '#3a82f6'}}>Add status</Text>
+            <Text style={{color: '#3a82f6'}}>
+              Add status {listTimeline.length}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -131,6 +187,11 @@ export default function TimelineScreen({navigation}) {
         keyExtractor={(item, index) => item}
         ItemSeparatorComponent={() => {
           return <View style={styles.separator} />;
+        }}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.05}
+        ref={ref => {
+          listTimelineRef = ref;
         }}
         renderItem={({item}) => {
           return (
@@ -183,11 +244,12 @@ export default function TimelineScreen({navigation}) {
                         }>
                         {checkLiked(listTimeline[item].likes) ? (
                           <View style={styles.socialBarButton}>
-                            <Icon name="thumb-up" size={18} color="#3a82f6" />
+                            <Icon name="heart" size={18} color="#f54748" />
                             <Text
                               style={{
-                                color: 'blue',
+                                color: '#f54748',
                                 marginHorizontal: 5,
+                                fontWeight: 'bold',
                               }}>
                               {Object.keys(listTimeline[item].likes).length}
                             </Text>
@@ -195,14 +257,14 @@ export default function TimelineScreen({navigation}) {
                         ) : (
                           <View style={styles.socialBarButton}>
                             <Icon
-                              name="thumb-up-outline"
+                              name="heart-outline"
                               size={18}
-                              color="#3a82f6"
+                              color="#f54748"
                             />
                             <Text
                               style={{
-                                color: 'black',
-                                // marginHorizontal: 5,
+                                color: '#f54748',
+                                marginHorizontal: 5,
                               }}>
                               {Object.keys(listTimeline[item].likes).length}
                             </Text>
@@ -215,12 +277,10 @@ export default function TimelineScreen({navigation}) {
                         onPress={() =>
                           toLikeAndUnlikeStatus(listTimeline[item]._id)
                         }>
-                        <Icon
-                          name="thumb-up-outline"
-                          size={18}
-                          color="#3a82f6"
-                        />
-                        <Text style={{marginHorizontal: 10}}>0</Text>
+                        <Icon name="heart-outline" size={18} color="#f54748" />
+                        <Text style={{marginHorizontal: 5, color: '#f54748'}}>
+                          0
+                        </Text>
                       </TouchableOpacity>
                     )}
                   </View>
@@ -228,6 +288,23 @@ export default function TimelineScreen({navigation}) {
               </View>
             </View>
           );
+        }}
+      />
+      <Icon
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          backgroundColor: '#bfbfbf',
+          borderRadius: 20,
+          padding: 10,
+          margin: 10,
+        }}
+        name="arrow-up"
+        size={18}
+        color="#3a82f6"
+        onPress={() => {
+          handleButtonToTop();
         }}
       />
     </View>

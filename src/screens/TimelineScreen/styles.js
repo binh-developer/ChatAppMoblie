@@ -89,10 +89,11 @@ export default StyleSheet.create({
     flex: 1,
   },
   socialBarSection: {
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    marginHorizontal: 20,
   },
   socialBarButton: {
     flexDirection: 'row',
