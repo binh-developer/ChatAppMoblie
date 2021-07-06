@@ -103,13 +103,17 @@ export function registerTokenDevice() {
 
 // ROOM
 export function createRoom(roomName) {
-  return database().ref(ROOM_METADATA_COLLECTIONS).push({
-    roomName,
-    createdAt: database.ServerValue.TIMESTAMP,
-    createdByUserId: auth()?.currentUser?.uid,
-    lastMessage: '',
-    roomAvatar: '',
-  });
+  return database()
+    .ref(ROOM_METADATA_COLLECTIONS)
+    .push({
+      roomName,
+      createdAt: database.ServerValue.TIMESTAMP,
+      createdByUserId: auth()?.currentUser?.uid,
+      lastMessage: {
+        createdAt: database.ServerValue.TIMESTAMP,
+      },
+      roomAvatar: '',
+    });
 }
 
 export function getRoomMetadata() {

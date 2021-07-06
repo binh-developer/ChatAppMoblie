@@ -29,7 +29,14 @@ export default function ListRoomScreen({navigation}) {
       .on('value', snapshot => {
         if (snapshot !== undefined) {
           if (mounted) {
-            setRoomMetadata(snapshot.val());
+            // Sort based on lastMessage created time
+            const sortable = Object.fromEntries(
+              Object.entries(snapshot.val()).sort(
+                ([, a], [, b]) =>
+                  b.lastMessage.createdAt - a.lastMessage.createdAt,
+              ),
+            );
+            setRoomMetadata(sortable);
           }
         }
       });
@@ -218,6 +225,10 @@ export default function ListRoomScreen({navigation}) {
                             roomMetadata[item].lastMessage !== undefined &&
                             roomMetadata[item].lastMessage !== '' &&
                             roomMetadata[item].lastMessage !== null &&
+                            roomMetadata[item].lastMessage.message !==
+                              undefined &&
+                            roomMetadata[item].lastMessage.message !== null &&
+                            roomMetadata[item].lastMessage.message !== '' &&
                             roomMetadata[item].lastMessage.message.length >
                               0 && (
                               <Text

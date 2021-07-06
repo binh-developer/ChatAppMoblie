@@ -7,7 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import {Avatar, Button} from 'react-native-elements';
+import {Avatar} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   getTimeline,
@@ -20,21 +20,13 @@ import {sortAsc} from '../../utils/arrayUtil';
 import styles from './styles';
 
 export default function TimelineScreen({navigation}) {
-  let listTimelineRef;
   const [listTimeline, setListTimeline] = useState([]);
-  // Default is just 24h ago
-  const [createdTime, setCreatedTime] = useState(
-    new Date().getTime() - 24 * 60 * 60 * 1000,
-  );
-  const [limit, setLimit] = useState(100);
 
   useEffect(() => {
     let mounted = true;
 
     const timeline = getTimeline()
-      .orderByChild('createdAt')
-      .limitToLast(limit)
-      .startAt(createdTime)
+      .limitToLast(100)
       .on('value', snapshot => {
         if (snapshot !== undefined) {
           if (mounted) {
@@ -99,53 +91,6 @@ export default function TimelineScreen({navigation}) {
     } else return false;
   };
 
-  const handleEndReached = () => {
-    setCreatedTime(createdTime - 24 * 60 * 60 * 1000 * 3);
-    getTimeline()
-      .orderByChild('createdAt')
-      .limitToLast(limit)
-      .startAt(createdTime)
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          let data = snapshot.val();
-          let rawMessage = Object.keys(data).map((key, index) => ({
-            _id: key,
-            userId: data[key].userId,
-            userName: data[key].userName,
-            status: data[key].status,
-            imageURL: data[key].imageURL,
-            likes: data[key].likes,
-            createdAt: data[key].createdAt,
-          }));
-          setListTimeline(sortAsc(rawMessage));
-        }
-      });
-  };
-
-  const handleButtonToTop = async () => {
-    listTimelineRef.scrollToOffset({offSet: 0, animated: true});
-    setCreatedTime(new Date().getTime() - 24 * 60 * 60 * 1000);
-    await getTimeline()
-      .orderByChild('createdAt')
-      .startAt(createdTime)
-      .limitToLast(limit)
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          let data = snapshot.val();
-          let rawMessage = Object.keys(data).map((key, index) => ({
-            _id: key,
-            userId: data[key].userId,
-            userName: data[key].userName,
-            status: data[key].status,
-            imageURL: data[key].imageURL,
-            likes: data[key].likes,
-            createdAt: data[key].createdAt,
-          }));
-          setListTimeline(sortAsc(rawMessage));
-        }
-      });
-  };
-
   return (
     <View style={styles.container}>
       {/* Create timeline */}
@@ -172,9 +117,7 @@ export default function TimelineScreen({navigation}) {
           </Text>
           <View style={{flexDirection: 'row'}}>
             <Icon name="pencil" size={18} color="#3a82f6" />
-            <Text style={{color: '#3a82f6'}}>
-              Add status {listTimeline.length}
-            </Text>
+            <Text style={{color: '#3a82f6'}}>Add status</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -187,11 +130,6 @@ export default function TimelineScreen({navigation}) {
         keyExtractor={(item, index) => item}
         ItemSeparatorComponent={() => {
           return <View style={styles.separator} />;
-        }}
-        onEndReached={handleEndReached}
-        onEndReachedThreshold={0.05}
-        ref={ref => {
-          listTimelineRef = ref;
         }}
         renderItem={({item}) => {
           return (
@@ -288,23 +226,6 @@ export default function TimelineScreen({navigation}) {
               </View>
             </View>
           );
-        }}
-      />
-      <Icon
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          right: 0,
-          backgroundColor: '#bfbfbf',
-          borderRadius: 20,
-          padding: 10,
-          margin: 10,
-        }}
-        name="arrow-up"
-        size={18}
-        color="#3a82f6"
-        onPress={() => {
-          handleButtonToTop();
         }}
       />
     </View>
