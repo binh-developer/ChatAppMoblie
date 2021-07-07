@@ -299,8 +299,15 @@ export function getTimeline() {
   return database().ref(TIMELINE_COLLECTIONS);
 }
 
-export function deleteStatus(statusId) {
-  return database().ref(TIMELINE_COLLECTIONS).child(statusId).remove();
+export async function deleteStatus(status) {
+  const regex = new RegExp(
+    `\\/timeline%2F${getUserProfile()?.uid}%2F(.*)\\?`,
+    '',
+  );
+  const str = status.imageURL;
+  let m = regex.exec(str)[1];
+  await storage().ref(`timeline/${getUserProfile()?.uid}/${m}`).delete();
+  return database().ref(TIMELINE_COLLECTIONS).child(status._id).remove();
 }
 
 export async function likeAndUnlikeStatus(statusId) {
@@ -330,4 +337,12 @@ export async function likeAndUnlikeStatus(statusId) {
       }
     });
   return status;
+}
+
+export async function updateImageTimeline(filename, uploadUri) {
+  const task = await storage().ref(filename).putFile(uploadUri);
+  if (task !== undefined) {
+    let url = await storage().ref(filename).getDownloadURL();
+    return url;
+  }
 }

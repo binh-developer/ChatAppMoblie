@@ -59,7 +59,7 @@ export default StyleSheet.create({
   },
   cardImage: {
     flex: 1,
-    height: 500,
+    height: 400,
     width: null,
     margin: 5,
     borderColor: '#f2f2f2',

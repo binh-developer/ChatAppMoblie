@@ -33,27 +33,24 @@ const ProfileScreen = ({navigation}) => {
         {!!getUserProfile() && (
           <View style={styles.card}>
             <Text style={styles.cardTittle}>Bio</Text>
-            <Text>Email: {getUserProfile()?.email}</Text>
-            <Text>Username: {getUserProfile()?.displayName}</Text>
+            <Text style={styles.textStyle}>
+              Email: {getUserProfile()?.email}
+            </Text>
+            <Text style={styles.textStyle}>
+              Username: {getUserProfile()?.displayName}
+            </Text>
           </View>
         )}
         <View style={styles.functionStyle}>
           <Text style={styles.cardTittle}>Setting</Text>
           <Text
-            style={{
-              color: '#3a82f6',
-              marginVertical: 10,
-            }}
+            style={{...styles.textStyle, color: '#3a82f6'}}
             onPress={() => navigation.navigate('Upload')}>
             Update Avatar
           </Text>
           <Text
-            style={{
-              color: 'tomato',
-              marginVertical: 10,
-            }}
-            onPress={() => toLogout()}
-            title="">
+            style={{...styles.textStyle, color: 'tomato'}}
+            onPress={() => toLogout()}>
             Logout
           </Text>
         </View>

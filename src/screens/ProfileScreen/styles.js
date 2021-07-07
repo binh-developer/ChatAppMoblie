@@ -44,4 +44,10 @@ export default StyleSheet.create({
     borderRadius: 10,
     padding: 10,
   },
+  textStyle: {
+    color: '#808080',
+    paddingVertical: 10,
+    borderBottomColor: '#f8f8f8',
+    borderBottomWidth: 2,
+  },
 });

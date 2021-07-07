@@ -51,14 +51,14 @@ export default function TimelineScreen({navigation}) {
     navigation.navigate('Status');
   };
 
-  const optionsStatus = statusId => {
+  const optionsStatus = status => {
     Alert.alert(
       'Option',
       'Choose option below',
       [
         {
           text: 'Delete Status',
-          onPress: () => deleteStatus(statusId),
+          onPress: () => deleteStatus(status),
         },
         {
           text: 'Cancel',
@@ -150,7 +150,7 @@ export default function TimelineScreen({navigation}) {
                     size={20}
                     color="#3a82f6"
                     onPress={() => {
-                      optionsStatus(listTimeline[item]._id);
+                      optionsStatus(listTimeline[item]);
                     }}
                   />
                 )}
