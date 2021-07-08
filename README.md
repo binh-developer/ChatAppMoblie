@@ -14,7 +14,7 @@ MeChat app layout.
 
 <br>
 <p align="center">
- <img alt="mechat_screen1_preview" title="mechat_screen1_preview" src="./docs/gif_1.gif" width="250px"/><br>
+ <img alt="mechat_login" title="mechat_login" src="./docs/gif-login.gif" width="250px"/><br>
 </p>
 <br>
 <p align="center">
@@ -23,8 +23,13 @@ MeChat app layout.
 
 <p align="center">
  <br>
-   <img alt="mechat_screen2_preview" title="mechat_screen3_preview" src="./docs/gif_2.gif" width="250px"/>
-  <img alt="mechat_screen3_preview" title="mechat_screen3_preview" src="./docs/gif_3.gif" width="250px"/>
+   <img alt="mechat_add_status" title="mechat_add_status" src="./docs/gif-add-status.gif" width="250px"/>
+   
+   <img alt="mechat_create_room" title="mechat_create_room" src="./docs/gif-create-room.gif" width="250px"/>
+   
+   <img alt="mechat_notification" title="mechat_notification" src="./docs/gif-notification.gif" width="250px"/>
+
+  <img alt="mechat_send_messages" title="mechat_send_messages" src="./docs/gif-send-messages.gif" width="250px"/>
 </p>
 
 ## Install and Run the project
