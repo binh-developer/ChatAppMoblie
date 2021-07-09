@@ -305,8 +305,12 @@ export async function deleteStatus(status) {
     '',
   );
   const str = status.imageURL;
-  let m = regex.exec(str)[1];
-  await storage().ref(`timeline/${getUserProfile()?.uid}/${m}`).delete();
+
+  if (str.length > 0) {
+    let m = regex.exec(str)[1];
+    await storage().ref(`timeline/${getUserProfile()?.uid}/${m}`).delete();
+  }
+
   return database().ref(TIMELINE_COLLECTIONS).child(status._id).remove();
 }
 

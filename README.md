@@ -1,12 +1,19 @@
 <h1 align="center">
 <img alt="mechat_logo" title="mechat_logo" src="./docs/logo.png" width="100px" />
     <br>
-    MeChat
+    Chat App (MeChat)
 </h1>
-
 <h4 align="center">
-Contact me at <a href="mailto:binhdlt.work@gmail.com">mail</a> to about more.<br/>I have developed this project in Android Device, and haven't test in IOS yet.
+Contact me at <a href="mailto:binhdlt.work@gmail.com">mail</a> to about more.
 </h4>
+
+## Table of Contents
+
+- [About](#about)
+- [Getting Started](#getting_started)
+- [Usage](#usage)
+
+## About <a name = "about"></a>
 
 <h4 align="center">
 MeChat app layout. 
@@ -32,21 +39,16 @@ MeChat app layout.
   <img alt="mechat_send_messages" title="mechat_send_messages" src="./docs/gif-send-messages.gif" width="250px"/>
 </p>
 
-## Install and Run the project
+## Getting Started <a name = "getting_started"></a>
+
+### Installing
 
 ```
 npm install
 npm run start
 ```
 
-## Run Push Notification Server
-
-```
-cd functions
-npm run start
-```
-
-## Note while installing
+## Usage <a name = "usage"></a>
 
 ### Rename App Name
 
@@ -115,15 +117,4 @@ index 9e01f9a..d093b44 100644
 
 ```
 patch-package
-```
-
-### Install package manually
-
-```
-npm install @react-navigation/native
-npm install react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view
-npm install @react-navigation/stack
-npm install react-native-elements
-npm install react-native-gifted-chat
-npm install --save @react-native-firebase/app
 ```

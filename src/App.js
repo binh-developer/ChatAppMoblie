@@ -18,6 +18,35 @@ import HomeScreen from './screens/HomeScreen';
 
 import messaging from '@react-native-firebase/messaging';
 
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  HttpLink,
+  from,
+} from '@apollo/client';
+import {onError} from '@apollo/client/link/error';
+
+const errorLink = onError(({graphqlErrors, networkError}) => {
+  if (graphqlErrors) {
+    graphqlErrors.map(({message, location, path}) => {
+      alert(`Graphql error ${message}`);
+    });
+  }
+});
+
+const link = from([
+  errorLink,
+  // your localhost ip
+  // there will be a error if you use localhost instead localhost ip
+  new HttpLink({uri: 'http://192.1.1.1:3000/graphql'}),
+]);
+
+const client = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: link,
+});
+
 // Ignore Yellow Warning
 LogBox.ignoreLogs(['Setting a timer']);
 
@@ -97,56 +126,58 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator>
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="Login"
-          component={LoginScreen}
-        />
-        <Stack.Screen
-          options={styles.headerCustomStyle}
-          name="Register"
-          component={RegisterScreen}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="Home"
-          component={HomeScreen}
-        />
-        <Stack.Screen
-          options={styles.headerCustomStyle}
-          name="ListRoom"
-          component={ListRoomScreen}
-        />
-        <Stack.Screen
-          options={styles.headerCustomStyle}
-          name="CreateRoom"
-          component={CreateRoomScreen}
-        />
-        <Stack.Screen name="Chat" component={ChatScreen} />
-        <Stack.Screen
-          options={styles.headerCustomStyle}
-          name="Profile"
-          component={ProfileScreen}
-        />
-        <Stack.Screen
-          options={styles.headerCustomStyle}
-          name="Upload"
-          component={UploadScreen}
-        />
-        <Stack.Screen
-          options={styles.headerCustomStyle}
-          name="Timeline"
-          component={TimelineScreen}
-        />
-        <Stack.Screen
-          options={styles.headerCustomStyle}
-          name="Status"
-          component={CreateStatusScreen}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ApolloProvider client={client}>
+      <NavigationContainer ref={navigationRef}>
+        <Stack.Navigator>
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="Login"
+            component={LoginScreen}
+          />
+          <Stack.Screen
+            options={styles.headerCustomStyle}
+            name="Register"
+            component={RegisterScreen}
+          />
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="Home"
+            component={HomeScreen}
+          />
+          <Stack.Screen
+            options={styles.headerCustomStyle}
+            name="ListRoom"
+            component={ListRoomScreen}
+          />
+          <Stack.Screen
+            options={styles.headerCustomStyle}
+            name="CreateRoom"
+            component={CreateRoomScreen}
+          />
+          <Stack.Screen name="Chat" component={ChatScreen} />
+          <Stack.Screen
+            options={styles.headerCustomStyle}
+            name="Profile"
+            component={ProfileScreen}
+          />
+          <Stack.Screen
+            options={styles.headerCustomStyle}
+            name="Upload"
+            component={UploadScreen}
+          />
+          <Stack.Screen
+            options={styles.headerCustomStyle}
+            name="Timeline"
+            component={TimelineScreen}
+          />
+          <Stack.Screen
+            options={styles.headerCustomStyle}
+            name="Status"
+            component={CreateStatusScreen}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ApolloProvider>
   );
 }
 

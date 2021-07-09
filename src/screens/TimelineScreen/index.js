@@ -19,11 +19,39 @@ import {formatDateFull} from '../../utils/timeUtil';
 import {sortAsc} from '../../utils/arrayUtil';
 import styles from './styles';
 
+import {useQuery, gql} from '@apollo/client';
+
 export default function TimelineScreen({navigation}) {
   const [listTimeline, setListTimeline] = useState([]);
 
+  const {error, loading, data} = useQuery(gql`
+    query {
+      timeline {
+        timelineId
+        userId
+        userName
+        createdAt
+        status
+        likes {
+          likeId
+          userId
+        }
+      }
+    }
+  `);
+
   useEffect(() => {
     let mounted = true;
+
+    if (data) {
+      console.log(data.timeline.length);
+    }
+    if (error) {
+      console.log(error);
+    }
+    if (loading) {
+      console.log(loading);
+    }
 
     const timeline = getTimeline()
       .limitToLast(100)
@@ -45,7 +73,7 @@ export default function TimelineScreen({navigation}) {
         }
       });
     return timeline, () => (mounted = false);
-  }, []);
+  }, [data]);
 
   const newTimeline = () => {
     navigation.navigate('Status');
