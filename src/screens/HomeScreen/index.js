@@ -1,47 +1,128 @@
 import React from 'react';
+import {View, StyleSheet} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Timeline from '../TimelineScreen';
 import Room from '../ListRoomScreen';
 import Profile from '../ProfileScreen';
+import Features from '../FeaturesScreen';
 
 const Tab = createBottomTabNavigator();
 
 const HomeScreen = () => {
   return (
     <Tab.Navigator
-      screenOptions={({route}) => ({
-        tabBarIcon: ({focused, color, size}) => {
-          let iconName;
-
-          if (route.name === 'Room') {
-            iconName = focused
-              ? 'chatbox-ellipses'
-              : 'chatbox-ellipses-outline';
-          }
-
-          if (route.name === 'Timeline') {
-            iconName = focused ? 'time' : 'time-outline';
-          }
-
-          if (route.name === 'Profile') {
-            iconName = focused ? 'happy' : 'happy-outline';
-          }
-
-          // You can return any component that you like here!
-          return <Icon name={iconName} size={size} color={color} />;
-        },
-      })}
+      initialRouteName="Room"
       tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
+        showLabel: true,
+        style: {
+          height: 60,
+          shadowOpacity: 0,
+          elevation: 0,
+          paddingLeft: 20,
+          paddingRight: 20,
+        },
       }}>
-      <Tab.Screen name="Room" component={Room} />
-      <Tab.Screen name="Timeline" component={Timeline} />
-      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen
+        name="Room"
+        component={Room}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#dce2ed' : 'transparent',
+                ...styles.viewStyle,
+              }}>
+              <Icon
+                name={focused ? 'chatbox-ellipses' : 'chatbox-ellipses-outline'}
+                size={18}
+                color="tomato"
+                style={styles.iconStyle}
+              />
+            </View>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Timeline"
+        component={Timeline}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#dce2ed' : 'transparent',
+                ...styles.viewStyle,
+              }}>
+              <Icon
+                name={focused ? 'time' : 'time-outline'}
+                size={18}
+                color="tomato"
+                style={styles.iconStyle}
+              />
+            </View>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#dce2ed' : 'transparent',
+                ...styles.viewStyle,
+              }}>
+              <Icon
+                name={focused ? 'happy' : 'happy-outline'}
+                size={18}
+                color="tomato"
+                style={styles.iconStyle}
+              />
+            </View>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Features"
+        component={Features}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <View
+              style={{
+                backgroundColor: focused ? '#dce2ed' : 'transparent',
+                ...styles.viewStyle,
+              }}>
+              <Icon
+                name={focused ? 'apps' : 'apps-outline'}
+                size={18}
+                color="tomato"
+                style={styles.iconStyle}
+              />
+            </View>
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };
 
 export default HomeScreen;
+
+const styles = StyleSheet.create({
+  viewStyle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 5,
+  },
+  iconStyle: {
+    width: 18,
+    height: 18,
+    marginHorizontal: 10,
+    marginVertical: 8,
+  },
+});
