@@ -102,18 +102,26 @@ export function registerTokenDevice() {
 }
 
 // ROOM
-export function createRoom(roomName) {
-  return database()
+export async function createRoom(roomName) {
+  const timestamp = database.ServerValue.TIMESTAMP;
+
+  await database()
     .ref(ROOM_METADATA_COLLECTIONS)
     .push({
       roomName,
-      createdAt: database.ServerValue.TIMESTAMP,
+      createdAt: timestamp,
       createdByUserId: auth()?.currentUser?.uid,
       lastMessage: {
-        createdAt: database.ServerValue.TIMESTAMP,
+        createdAt: timestamp,
       },
       roomAvatar: '',
+    })
+    .then(data => {
+      let m = /\/room-metadata\/(.*)/g.exec(data)[1];
+      signUserToRoom(m);
     });
+
+  return;
 }
 
 export function getRoomMetadata() {

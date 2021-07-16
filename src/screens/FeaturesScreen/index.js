@@ -36,7 +36,7 @@ export default function TabViewExample() {
           {/* Style Icon */}
           {route.title === 'Reminder' && (
             <Icon
-              name={focused ? 'clipboard' : 'clipboard-outline'}
+              name={focused ? 'alarm' : 'alarm-outline'}
               color="tomato"
               size={18}
             />
