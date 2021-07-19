@@ -1,91 +1,62 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, View, FlatList, TouchableOpacity} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {getReminders, deleteReminder} from '../../helpers/firebase';
+import {formatDateFull} from '../../utils/timeUtil';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function ReminderScreen() {
   const navigation = useNavigation();
-  const [listData, setListData] = useState([
-    {
-      id: 1,
-      reminderTitle: 'You',
-      color: '#FF4500',
-      image: 'https://img.icons8.com/color/70/000000/name.png',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: 2,
-      reminderTitle: 'Home',
-      color: '#87CEEB',
-      image: 'https://img.icons8.com/office/70/000000/home-page.png',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: 3,
-      reminderTitle: 'Love',
-      color: '#4682B4',
-      image: 'https://img.icons8.com/color/70/000000/two-hearts.png',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: 4,
-      reminderTitle: 'Family',
-      color: '#6A5ACD',
-      image: 'https://img.icons8.com/color/70/000000/family.png',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: 5,
-      reminderTitle: 'Friends',
-      color: '#FF69B4',
-      image: 'https://img.icons8.com/color/70/000000/groups.png',
-      createdAt: new Date().getTime(),
-    },
+  const [listData, setListData] = useState('');
 
-    {
-      id: 6,
-      reminderTitle: 'Friends',
-      color: '#FF69B4',
-      image: 'https://img.icons8.com/color/70/000000/groups.png',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: 7,
-      reminderTitle: 'Friends',
-      color: '#FF69B4',
-      image: 'https://img.icons8.com/color/70/000000/groups.png',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: 8,
-      reminderTitle: 'Friends',
-      color: '#FF69B4',
-      image: 'https://img.icons8.com/color/70/000000/groups.png',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: 9,
-      reminderTitle: 'Friends',
-      color: '#FF69B4',
-      image: 'https://img.icons8.com/color/70/000000/groups.png',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: 10,
-      reminderTitle: 'Friends',
-      color: '#FF69B4',
-      image: 'https://img.icons8.com/color/70/000000/groups.png',
-      createdAt: new Date().getTime(),
-    },
-  ]);
+  useEffect(() => {
+    let mounted = true;
+
+    const ListReminders = getReminders()
+      .orderByChild('reminderTime')
+      .on('value', snapshot => {
+        if (snapshot !== undefined) {
+          if (mounted) {
+            // Sort based on reminderTime created time
+            const sortable = Object.fromEntries(
+              Object.entries(snapshot.val()).sort(
+                ([, a], [, b]) => a.reminderTime - b.reminderTime,
+              ),
+            );
+            setListData(sortable);
+          }
+        }
+      });
+
+    return ListReminders, () => (mounted = false);
+  }, []);
 
   const createReminder = () => {
     navigation.navigate('CreateReminder');
   };
 
+  const removeReminder = id => {
+    Alert.alert('Delete Reminder', '', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => deleteReminder(id)},
+    ]);
+  };
+
   return (
     <View style={{flex: 1}}>
       <View style={styles.createContainer}>
-        <Text>Set up reminder for yourself</Text>
+        <Text>Set your reminder</Text>
         <TouchableOpacity>
           <Text
             style={{
@@ -95,7 +66,7 @@ export default function ReminderScreen() {
               margin: 10,
             }}
             onPress={() => createReminder()}>
-            Create
+            Set
           </Text>
         </TouchableOpacity>
       </View>
@@ -103,22 +74,39 @@ export default function ReminderScreen() {
       <FlatList
         enableEmptySections={true}
         style={styles.list}
-        data={listData}
+        data={Object.keys(listData)}
         horizontal={false}
-        keyExtractor={item => {
-          return item.id;
-        }}
+        keyExtractor={(item, index) => item}
         renderItem={({item}) => {
           return (
             <View style={styles.listContainer}>
-              <TouchableOpacity
-                style={styles.touchableOpacityStyle}
-                onPress={() => {
-                  console.log(item.id);
-                }}>
-                <Text style={styles.reminderTitle}>{item.reminderTitle}</Text>
-                <Text style={styles.reminderTitle}>{item.createdAt}</Text>
-              </TouchableOpacity>
+              <View style={styles.touchableOpacityStyle}>
+                <View>
+                  <Text style={styles.reminderTitle}>
+                    {listData[item].title}
+                  </Text>
+
+                  <Text style={styles.reminderTitle}>
+                    {formatDateFull(listData[item].reminderTime)}
+                  </Text>
+                </View>
+                <View style={{flexDirection: 'row'}}>
+                  <Icon
+                    name="pencil"
+                    size={20}
+                    color="tomato"
+                    style={{marginHorizontal: 5}}
+                    onPress={() => console.log('edit')}
+                  />
+                  <Icon
+                    name="trash"
+                    size={20}
+                    color="tomato"
+                    style={{marginHorizontal: 5}}
+                    onPress={() => removeReminder(item)}
+                  />
+                </View>
+              </View>
             </View>
           );
         }}
@@ -138,31 +126,30 @@ const styles = StyleSheet.create({
   },
   list: {
     margin: 10,
+    paddingVertical: 2,
     marginTop: 0,
     borderRadius: 20,
     backgroundColor: '#ffffff',
   },
   listContainer: {
-    marginHorizontal: 10,
+    margin: 8,
   },
 
   touchableOpacityStyle: {
     flexDirection: 'row',
-    backgroundColor: '#80d6ff',
+    backgroundColor: '#b6ffff',
     alignItems: 'center',
+    justifyContent: 'space-between',
     borderRadius: 20,
     padding: 10,
-    marginVertical: 5,
   },
   cardImage: {
     height: 30,
     width: 30,
   },
   reminderTitle: {
-    fontSize: 18,
     flex: 1,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginLeft: 20,
+    color: 'black',
+    marginHorizontal: 5,
   },
 });

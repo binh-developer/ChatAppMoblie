@@ -49,16 +49,23 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eaeaea',
     backgroundColor: '#fafafa',
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
   },
-
+  reminderSetTime: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   reminderButton: {
     backgroundColor: '#3a82f6',
     borderRadius: 30,
     height: 45,
     marginHorizontal: 100,
     marginTop: 10,
+  },
+  reminderText: {
+    color: '#3a82f6',
+    fontWeight: 'bold',
+    marginLeft: 20,
   },
 });

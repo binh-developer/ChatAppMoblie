@@ -371,3 +371,15 @@ export async function createReminder(data) {
       createdAt: database.ServerValue.TIMESTAMP,
     });
 }
+
+export function getReminders() {
+  return database().ref(REMINDER_COLLECTIONS).child(auth()?.currentUser?.uid);
+}
+
+export function deleteReminder(id) {
+  return database()
+    .ref(REMINDER_COLLECTIONS)
+    .child(auth()?.currentUser?.uid)
+    .child(id)
+    .remove();
+}

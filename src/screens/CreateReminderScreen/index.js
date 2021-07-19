@@ -13,20 +13,23 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import {createReminder} from '../../helpers/firebase';
-import {formatTime} from '../../utils/timeUtil';
+import {formatTime, formatDate} from '../../utils/timeUtil';
 import styles from './styles';
 
-const CreateReminderScreen = ({navigation: {goBack}}) => {
+const CreateReminderScreen = ({navigation}) => {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(new Date());
-  const [mode, setMode] = useState('date');
+  const [mode, setMode] = useState('');
   const [show, setShow] = useState(false);
 
   const onCreate = () => {
-    if (title !== '') {
-      //   createReminder();
+    if (title !== '' && date > new Date()) {
+      var a = new Date(date);
+      a = a.setSeconds(0);
+
+      createReminder({title: title, reminderTime: new Date(a).getTime()});
     }
-    return goBack();
+    return navigation.goBack();
   };
 
   const onChange = (event, selectedDate) => {
@@ -53,8 +56,9 @@ const CreateReminderScreen = ({navigation: {goBack}}) => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.reminderScreenContainer}>
           <View style={styles.reminderFormView}>
-            <Text style={styles.reminderLogoText}>Create Reminder</Text>
+            <Text style={styles.reminderLogoText}>Set Reminder</Text>
             <TextInput
+              defaultValue={title.length > 0 ? title : null}
               placeholder="Title name"
               placeholderColor="#c4c3cb"
               style={styles.reminderFormTextInput}
@@ -62,26 +66,31 @@ const CreateReminderScreen = ({navigation: {goBack}}) => {
               onChangeText={text => setTitle(text)}
             />
             <View style={styles.reminderTimeView}>
-              <Text>{formatTime(date)}</Text>
-              <Icon
-                name="time"
-                size={20}
-                color="tomato"
-                onPress={showDatepicker}
-                style={{marginHorizontal: 5}}
-              />
-              <Icon
-                name="time-outline"
-                size={20}
-                color="tomato"
-                onPress={showTimepicker}
-                style={{marginHorizontal: 5}}
-              />
+              <View style={styles.reminderSetTime}>
+                <Text style={styles.reminderText}>{formatTime(date)}</Text>
+                <Icon
+                  name="time-outline"
+                  size={20}
+                  color="tomato"
+                  onPress={showTimepicker}
+                  style={{marginHorizontal: 20}}
+                />
+              </View>
+              <View style={styles.reminderSetTime}>
+                <Text style={styles.reminderText}>{formatDate(date)}</Text>
+                <Icon
+                  name="calendar-outline"
+                  size={20}
+                  color="tomato"
+                  onPress={showDatepicker}
+                  style={{marginHorizontal: 20}}
+                />
+              </View>
             </View>
 
             <Button
               buttonStyle={styles.reminderButton}
-              title="Create"
+              title="Set"
               onPress={onCreate}
             />
           </View>
