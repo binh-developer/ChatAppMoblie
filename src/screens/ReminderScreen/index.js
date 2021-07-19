@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View, FlatList, TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
-const Reminder = () => {
+export default function ReminderScreen() {
+  const navigation = useNavigation();
   const [listData, setListData] = useState([
     {
       id: 1,
@@ -76,18 +78,23 @@ const Reminder = () => {
     },
   ]);
 
+  const createReminder = () => {
+    navigation.navigate('CreateReminder');
+  };
+
   return (
     <View style={{flex: 1}}>
       <View style={styles.createContainer}>
         <Text>Set up reminder for yourself</Text>
-        <TouchableOpacity onPress={() => console.log('click reminder')}>
+        <TouchableOpacity>
           <Text
             style={{
               color: '#3a82f6',
               fontSize: 16,
               fontWeight: 'bold',
               margin: 10,
-            }}>
+            }}
+            onPress={() => createReminder()}>
             Create
           </Text>
         </TouchableOpacity>
@@ -118,9 +125,7 @@ const Reminder = () => {
       />
     </View>
   );
-};
-
-export default Reminder;
+}
 
 const styles = StyleSheet.create({
   createContainer: {
@@ -132,7 +137,6 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   list: {
-    // padding: 10,
     margin: 10,
     marginTop: 0,
     borderRadius: 20,

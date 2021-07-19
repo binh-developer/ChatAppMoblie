@@ -5,7 +5,7 @@ import {TabBar, TabView, SceneMap} from 'react-native-tab-view';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Calendar from '../../components/Calendar';
-import Reminder from '../../components/Reminder';
+import Reminder from '../ReminderScreen';
 
 const renderScene = SceneMap({
   first: Calendar,

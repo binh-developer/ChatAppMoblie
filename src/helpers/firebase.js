@@ -8,6 +8,7 @@ const ROOM_METADATA_COLLECTIONS = 'room-metadata';
 const ROOM_USERS_COLLECTIONS = 'room-users';
 const USER_METADATA_COLLECTIONS = 'user-metadata';
 const TIMELINE_COLLECTIONS = 'timeline';
+const REMINDER_COLLECTIONS = 'reminder';
 
 // USER
 export function createUserAccount(email, password, username) {
@@ -357,4 +358,16 @@ export async function updateImageTimeline(filename, uploadUri) {
     let url = await storage().ref(filename).getDownloadURL();
     return url;
   }
+}
+
+export async function createReminder(data) {
+  return database()
+    .ref(REMINDER_COLLECTIONS)
+    .child(auth()?.currentUser?.uid)
+    .push({
+      userId: auth()?.currentUser?.uid,
+      title: data.title,
+      reminderTime: data.reminderTime,
+      createdAt: database.ServerValue.TIMESTAMP,
+    });
 }

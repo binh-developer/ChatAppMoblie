@@ -14,6 +14,7 @@ import CreateRoomScreen from './screens/CreateRoomScreen';
 import UploadScreen from './screens/UploadAvatarScreen';
 import TimelineScreen from './screens/TimelineScreen';
 import CreateStatusScreen from './screens/CreateStatusScreen';
+import CreateReminderScreen from './screens/CreateReminderScreen';
 import HomeScreen from './screens/HomeScreen';
 
 import messaging from '@react-native-firebase/messaging';
@@ -174,6 +175,11 @@ export default function App() {
             options={styles.headerCustomStyle}
             name="Status"
             component={CreateStatusScreen}
+          />
+          <Stack.Screen
+            options={styles.headerCustomStyle}
+            name="CreateReminder"
+            component={CreateReminderScreen}
           />
         </Stack.Navigator>
       </NavigationContainer>
