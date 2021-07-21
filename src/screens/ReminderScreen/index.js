@@ -25,12 +25,20 @@ export default function ReminderScreen() {
         if (snapshot !== undefined) {
           if (mounted) {
             // Sort based on reminderTime created time
-            const sortable = Object.fromEntries(
-              Object.entries(snapshot.val()).sort(
-                ([, a], [, b]) => a.reminderTime - b.reminderTime,
-              ),
-            );
-            setListData(sortable);
+            if (snapshot.val() !== undefined && snapshot.val() !== null) {
+              const sortable = Object.fromEntries(
+                Object.entries(snapshot.val()).sort(
+                  ([, a], [, b]) => a.reminderTime - b.reminderTime,
+                ),
+              );
+
+              Object.keys(snapshot.val()).forEach(async key => {
+                if (snapshot.val()[key].reminderTime < new Date()) {
+                  await deleteReminder(key);
+                }
+              });
+              setListData(sortable);
+            } else setListData('');
           }
         }
       });
@@ -96,7 +104,15 @@ export default function ReminderScreen() {
                     size={20}
                     color="tomato"
                     style={{marginHorizontal: 5}}
-                    onPress={() => console.log('edit')}
+                    onPress={() =>
+                      navigation.navigate('UpdateReminder', {
+                        id: item,
+                        reminderData: {
+                          reminderTime: listData[item].reminderTime,
+                          title: listData[item].title,
+                        },
+                      })
+                    }
                   />
                   <Icon
                     name="trash"

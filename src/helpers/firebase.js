@@ -376,6 +376,17 @@ export function getReminders() {
   return database().ref(REMINDER_COLLECTIONS).child(auth()?.currentUser?.uid);
 }
 
+export function updateReminder(id, data) {
+  return database()
+    .ref(REMINDER_COLLECTIONS)
+    .child(auth()?.currentUser?.uid)
+    .child(id)
+    .update({
+      reminderTime: data.reminderTime,
+      title: data.title,
+    });
+}
+
 export function deleteReminder(id) {
   return database()
     .ref(REMINDER_COLLECTIONS)
