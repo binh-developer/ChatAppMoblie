@@ -93,6 +93,9 @@ export default function ReminderScreen() {
                   <Text style={styles.reminderTitle}>
                     {listData[item].title}
                   </Text>
+                  <Text style={styles.reminderTitle}>
+                    {listData[item].roomId}
+                  </Text>
 
                   <Text style={styles.reminderTitle}>
                     {formatDateFull(listData[item].reminderTime)}

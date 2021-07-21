@@ -11,7 +11,7 @@ export default StyleSheet.create({
     color: '#000',
     fontSize: 30,
     fontWeight: 'bold',
-    marginTop: 150,
+    marginTop: 20,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -67,5 +67,21 @@ export default StyleSheet.create({
     color: '#3a82f6',
     fontWeight: 'bold',
     marginLeft: 20,
+  },
+
+  searchContainer: {
+    backgroundColor: '#E5E7EB',
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  searchInput: {
+    height: 45,
+    borderBottomColor: '#FFFFFF',
+    flex: 1,
   },
 });

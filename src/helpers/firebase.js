@@ -367,6 +367,7 @@ export async function createReminder(data) {
     .push({
       userId: auth()?.currentUser?.uid,
       title: data.title,
+      roomId: data.roomId,
       reminderTime: data.reminderTime,
       createdAt: database.ServerValue.TIMESTAMP,
     });
