@@ -94,7 +94,7 @@ export default function ReminderScreen() {
                     {listData[item].title}
                   </Text>
                   <Text style={styles.reminderTitle}>
-                    {listData[item].roomId}
+                    Room: {listData[item].roomName}
                   </Text>
 
                   <Text style={styles.reminderTitle}>

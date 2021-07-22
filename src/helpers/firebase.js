@@ -361,37 +361,27 @@ export async function updateImageTimeline(filename, uploadUri) {
 }
 
 export async function createReminder(data) {
-  return database()
-    .ref(REMINDER_COLLECTIONS)
-    .child(auth()?.currentUser?.uid)
-    .push({
-      userId: auth()?.currentUser?.uid,
-      title: data.title,
-      roomId: data.roomId,
-      reminderTime: data.reminderTime,
-      createdAt: database.ServerValue.TIMESTAMP,
-    });
+  return database().ref(REMINDER_COLLECTIONS).push({
+    userId: auth()?.currentUser?.uid,
+    title: data.title,
+    roomId: data.roomId,
+    roomName: data.roomName,
+    reminderTime: data.reminderTime,
+    createdAt: database.ServerValue.TIMESTAMP,
+  });
 }
 
 export function getReminders() {
-  return database().ref(REMINDER_COLLECTIONS).child(auth()?.currentUser?.uid);
+  return database().ref(REMINDER_COLLECTIONS);
 }
 
 export function updateReminder(id, data) {
-  return database()
-    .ref(REMINDER_COLLECTIONS)
-    .child(auth()?.currentUser?.uid)
-    .child(id)
-    .update({
-      reminderTime: data.reminderTime,
-      title: data.title,
-    });
+  return database().ref(REMINDER_COLLECTIONS).child(id).update({
+    reminderTime: data.reminderTime,
+    title: data.title,
+  });
 }
 
 export function deleteReminder(id) {
-  return database()
-    .ref(REMINDER_COLLECTIONS)
-    .child(auth()?.currentUser?.uid)
-    .child(id)
-    .remove();
+  return database().ref(REMINDER_COLLECTIONS).child(id).remove();
 }

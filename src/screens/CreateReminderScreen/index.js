@@ -24,6 +24,7 @@ import {FlatList} from 'react-native';
 const CreateReminderScreen = ({navigation}) => {
   const [selected, setSelected] = useState(false);
   const [roomId, setRoomId] = useState('');
+  const [roomName, setRoomName] = useState('');
   const [roomData, setRoomData] = useState('');
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(new Date());
@@ -36,6 +37,7 @@ const CreateReminderScreen = ({navigation}) => {
       a = a.setSeconds(0);
 
       createReminder({
+        roomName,
         roomId,
         title: title,
         reminderTime: new Date(a).getTime(),
@@ -94,7 +96,6 @@ const CreateReminderScreen = ({navigation}) => {
                         .once('value')
                         .then(snapshot => {
                           if (snapshot.exists()) {
-                            console.log(snapshot.val());
                             setRoomData(snapshot.val());
                           }
                         });
@@ -131,6 +132,7 @@ const CreateReminderScreen = ({navigation}) => {
                         }}
                         onPress={() => {
                           setRoomId(item);
+                          setRoomName(roomData[item].roomName);
                           setSelected(true);
                         }}>
                         "{roomData[item].roomName}"
@@ -143,6 +145,7 @@ const CreateReminderScreen = ({navigation}) => {
                         }}
                         onPress={() => {
                           setRoomId(item);
+                          setRoomName(roomData[item].roomName);
                           setSelected(true);
                         }}>
                         {roomData[item].createdByUserId ===
@@ -176,7 +179,7 @@ const CreateReminderScreen = ({navigation}) => {
                     alignSelf: 'center',
                     alignItems: 'center',
                   }}>
-                  Room Id: {roomId}
+                  Room: {roomName}
                 </Text>
                 <Icon
                   name="close"
@@ -184,6 +187,7 @@ const CreateReminderScreen = ({navigation}) => {
                   color="tomato"
                   onPress={() => {
                     setRoomId('');
+                    setRoomName('');
                     setSelected(false);
                   }}
                   style={{marginHorizontal: 20}}
