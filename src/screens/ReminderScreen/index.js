@@ -12,12 +12,37 @@ import {getReminders, deleteReminder} from '../../helpers/firebase';
 import {formatDateFull} from '../../utils/timeUtil';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+import {useQuery, gql} from '@apollo/client';
+
 export default function ReminderScreen() {
   const navigation = useNavigation();
   const [listData, setListData] = useState('');
 
+  const {error, loading, data} = useQuery(gql`
+    query {
+      reminder {
+        createdAt
+        reminderTime
+        roomId
+        roomName
+        title
+        userId
+      }
+    }
+  `);
+
   useEffect(() => {
     let mounted = true;
+
+    if (data) {
+      console.log(data);
+    }
+    if (error) {
+      console.log(error);
+    }
+    if (loading) {
+      console.log(loading);
+    }
 
     const ListReminders = getReminders()
       .orderByChild('reminderTime')
@@ -44,7 +69,7 @@ export default function ReminderScreen() {
       });
 
     return ListReminders, () => (mounted = false);
-  }, []);
+  }, [data]);
 
   const createReminder = () => {
     navigation.navigate('CreateReminder');
