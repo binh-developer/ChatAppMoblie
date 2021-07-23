@@ -93,15 +93,18 @@ export default function ReminderScreen() {
                       size={20}
                       color="tomato"
                       style={{marginHorizontal: 5}}
-                      onPress={() =>
+                      onPress={() => {
                         navigation.navigate('UpdateReminder', {
                           id: item.reminderId,
                           reminderData: {
                             reminderTime: item.reminderTime,
                             title: item.title,
+                            roomName: item.roomName,
                           },
-                        })
-                      }
+                        });
+
+                        markThatReloadingOne = false;
+                      }}
                     />
                     <Icon
                       name="trash"

@@ -9,7 +9,7 @@ export default StyleSheet.create({
   },
   reminderLogoText: {
     color: '#000',
-    fontSize: 30,
+    fontSize: 20,
     fontWeight: 'bold',
     marginTop: 150,
     marginBottom: 20,

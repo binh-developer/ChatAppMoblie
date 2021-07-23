@@ -59,7 +59,9 @@ const UpdateReminderScreen = ({navigation, route}) => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.reminderScreenContainer}>
           <View style={styles.reminderFormView}>
-            <Text style={styles.reminderLogoText}>Update Reminder</Text>
+            <Text style={styles.reminderLogoText}>
+              Update {reminderData.roomName}
+            </Text>
             <TextInput
               defaultValue={title.length > 0 ? title : null}
               placeholder="Title name"
