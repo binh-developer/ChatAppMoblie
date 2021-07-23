@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,85 +6,134 @@ import {
   FlatList,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {getReminders, deleteReminder} from '../../helpers/firebase';
-import {formatDateFull} from '../../utils/timeUtil';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import {useQuery, gql} from '@apollo/client';
+import {deleteReminder} from '../../helpers/firebase';
+import {GET_REMINDER} from '../../helpers/graphql';
+import {formatDateFull} from '../../utils/timeUtil';
+
+import {useQuery} from '@apollo/client';
 
 export default function ReminderScreen() {
   const navigation = useNavigation();
-  const [listData, setListData] = useState('');
 
-  const {error, loading, data} = useQuery(gql`
-    query {
-      reminder {
-        createdAt
-        reminderTime
-        roomId
-        roomName
-        title
-        userId
-      }
-    }
-  `);
-
-  useEffect(() => {
-    let mounted = true;
-
-    if (data) {
-      console.log(data);
-    }
-    if (error) {
-      console.log(error);
-    }
-    if (loading) {
-      console.log(loading);
-    }
-
-    const ListReminders = getReminders()
-      .orderByChild('reminderTime')
-      .on('value', snapshot => {
-        if (snapshot !== undefined) {
-          if (mounted) {
-            // Sort based on reminderTime created time
-            if (snapshot.val() !== undefined && snapshot.val() !== null) {
-              const sortable = Object.fromEntries(
-                Object.entries(snapshot.val()).sort(
-                  ([, a], [, b]) => a.reminderTime - b.reminderTime,
-                ),
-              );
-
-              Object.keys(snapshot.val()).forEach(async key => {
-                if (snapshot.val()[key].reminderTime < new Date()) {
-                  await deleteReminder(key);
-                }
-              });
-              setListData(sortable);
-            } else setListData('');
-          }
-        }
-      });
-
-    return ListReminders, () => (mounted = false);
-  }, [data]);
+  let markThatReloadingOne = true;
 
   const createReminder = () => {
     navigation.navigate('CreateReminder');
+    markThatReloadingOne = false;
   };
 
-  const removeReminder = id => {
-    Alert.alert('Delete Reminder', '', [
+  function ReminderListApollo() {
+    let refreshing = true;
+    const isFocused = useIsFocused();
+    const {loading, error, data, refetch, networkStatus} = useQuery(
+      GET_REMINDER,
       {
-        text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
-        style: 'cancel',
+        notifyOnNetworkStatusChange: true,
       },
-      {text: 'OK', onPress: () => deleteReminder(id)},
-    ]);
-  };
+    );
+
+    const onRefresh = () => {
+      refetch();
+    };
+
+    if (isFocused) {
+      if (markThatReloadingOne === false) {
+        refetch();
+        markThatReloadingOne = true;
+      }
+    }
+
+    if (networkStatus === 4)
+      return <FlatList enableEmptySections={true} style={styles.list} />;
+    if (loading) return <Text>Loading</Text>;
+    if (error) return <Text>Error!</Text>;
+    if (data) refreshing = false;
+
+    return (
+      <>
+        {refreshing ? <ActivityIndicator /> : null}
+        <FlatList
+          enableEmptySections={true}
+          style={styles.list}
+          data={data.reminder}
+          horizontal={false}
+          keyExtractor={item => item.reminderId}
+          refreshControl={
+            <RefreshControl
+              //refresh control used for the Pull to Refresh
+              refreshing={refreshing}
+              onRefresh={() => onRefresh()}
+              tintColor="red"
+              colors={['red', 'green']}
+            />
+          }
+          renderItem={({item}) => {
+            return (
+              <View style={styles.listContainer}>
+                <View style={styles.touchableOpacityStyle}>
+                  <View>
+                    <Text style={styles.reminderTitle}>{item.title}</Text>
+                    <Text style={styles.reminderTitle}>
+                      Room: {item.roomName}
+                    </Text>
+
+                    <Text style={styles.reminderTitle}>
+                      {formatDateFull(item.reminderTime)}
+                    </Text>
+                  </View>
+                  <View style={{flexDirection: 'row'}}>
+                    <Icon
+                      name="pencil"
+                      size={20}
+                      color="tomato"
+                      style={{marginHorizontal: 5}}
+                      onPress={() =>
+                        navigation.navigate('UpdateReminder', {
+                          id: item.reminderId,
+                          reminderData: {
+                            reminderTime: item.reminderTime,
+                            title: item.title,
+                          },
+                        })
+                      }
+                    />
+                    <Icon
+                      name="trash"
+                      size={20}
+                      color="tomato"
+                      style={{marginHorizontal: 5}}
+                      onPress={async () => {
+                        Alert.alert('Delete Reminder', '', [
+                          {
+                            text: 'Cancel',
+                            onPress: () => console.log('Cancel Pressed'),
+                            style: 'cancel',
+                          },
+                          {
+                            text: 'OK',
+                            onPress: () => {
+                              deleteReminder(item.reminderId);
+                              refetch();
+                            },
+                          },
+                        ]);
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            );
+          }}
+        />
+      </>
+    );
+  }
 
   return (
     <View style={{flex: 1}}>
@@ -103,58 +152,7 @@ export default function ReminderScreen() {
           </Text>
         </TouchableOpacity>
       </View>
-
-      <FlatList
-        enableEmptySections={true}
-        style={styles.list}
-        data={Object.keys(listData)}
-        horizontal={false}
-        keyExtractor={(item, index) => item}
-        renderItem={({item}) => {
-          return (
-            <View style={styles.listContainer}>
-              <View style={styles.touchableOpacityStyle}>
-                <View>
-                  <Text style={styles.reminderTitle}>
-                    {listData[item].title}
-                  </Text>
-                  <Text style={styles.reminderTitle}>
-                    Room: {listData[item].roomName}
-                  </Text>
-
-                  <Text style={styles.reminderTitle}>
-                    {formatDateFull(listData[item].reminderTime)}
-                  </Text>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Icon
-                    name="pencil"
-                    size={20}
-                    color="tomato"
-                    style={{marginHorizontal: 5}}
-                    onPress={() =>
-                      navigation.navigate('UpdateReminder', {
-                        id: item,
-                        reminderData: {
-                          reminderTime: listData[item].reminderTime,
-                          title: listData[item].title,
-                        },
-                      })
-                    }
-                  />
-                  <Icon
-                    name="trash"
-                    size={20}
-                    color="tomato"
-                    style={{marginHorizontal: 5}}
-                    onPress={() => removeReminder(item)}
-                  />
-                </View>
-              </View>
-            </View>
-          );
-        }}
-      />
+      <ReminderListApollo />
     </View>
   );
 }
