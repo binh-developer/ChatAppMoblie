@@ -45,17 +45,7 @@ const link = from([
 ]);
 
 const client = new ApolloClient({
-  cache: new InMemoryCache({
-    typePolicies: {
-      Query: {
-        fields: {
-          project: {
-            merge: true,
-          },
-        },
-      },
-    },
-  }),
+  cache: new InMemoryCache(),
   link: link,
 });
 

@@ -12,7 +12,6 @@ import {
 import {useNavigation, useIsFocused} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-// import {deleteReminder} from '../../helpers/firebase';
 import {GET_REMINDER, REMOVE_REMINDER} from '../../helpers/graphql';
 import {formatDateFull} from '../../utils/timeUtil';
 
@@ -20,8 +19,18 @@ import {useQuery, useMutation} from '@apollo/client';
 
 export default function ReminderScreen() {
   const navigation = useNavigation();
-  const [removeReminder, {data, loading, error, refetch}] =
-    useMutation(REMOVE_REMINDER);
+  const [removeReminder, {data, loading, error}] = useMutation(
+    REMOVE_REMINDER,
+    // After delete a given reminder, it will refetch the query
+    {
+      refetchQueries: [
+        {
+          query: GET_REMINDER,
+          variables: {repoName: 'apollographql/apollo-client'},
+        },
+      ],
+    },
+  );
 
   let markThatReloadingOne = true;
 
@@ -42,10 +51,6 @@ export default function ReminderScreen() {
 
     const onRefresh = () => {
       refetch();
-    };
-
-    const deleteReminder = reminderId => {
-      removeReminder({variables: {reminderId: reminderId}});
     };
 
     if (isFocused) {
@@ -127,8 +132,9 @@ export default function ReminderScreen() {
                           {
                             text: 'OK',
                             onPress: () => {
-                              deleteReminder(item.reminderId);
-                              refetch();
+                              removeReminder({
+                                variables: {reminderId: item.reminderId},
+                              });
                             },
                           },
                         ]);
