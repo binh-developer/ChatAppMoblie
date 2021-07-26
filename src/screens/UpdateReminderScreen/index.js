@@ -12,7 +12,8 @@ import {Button} from 'react-native-elements';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import {updateReminder} from '../../helpers/firebase';
+import {useMutation} from '@apollo/client';
+import {UPDATE_REMINDER} from '../../helpers/graphql';
 import {formatTime, formatDate} from '../../utils/timeUtil';
 import styles from './styles';
 
@@ -23,14 +24,20 @@ const UpdateReminderScreen = ({navigation, route}) => {
   const [mode, setMode] = useState('');
   const [show, setShow] = useState(false);
 
+  const [updateReminder, {data}] = useMutation(UPDATE_REMINDER);
+
   const onUpdate = () => {
-    console.log('click update');
     if (title !== '' && date > new Date()) {
       var a = new Date(date);
       a = a.setSeconds(0);
 
-      console.log(id, title, date);
-      updateReminder(id, {title: title, reminderTime: new Date(a).getTime()});
+      updateReminder({
+        variables: {
+          reminderId: id,
+          title,
+          reminderTime: new Date(a).getTime(),
+        },
+      });
     }
     return navigation.goBack();
   };

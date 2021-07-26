@@ -11,12 +11,11 @@ import {
 import {Button} from 'react-native-elements';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useMutation} from '@apollo/client';
 
-import {
-  createReminder,
-  getRoomMetadata,
-  getUserProfile,
-} from '../../helpers/firebase';
+import {getRoomMetadata, getUserProfile} from '../../helpers/firebase';
+
+import {CREATE_REMINDER} from '../../helpers/graphql';
 import {formatTime, formatDate} from '../../utils/timeUtil';
 import styles from './styles';
 import {FlatList} from 'react-native';
@@ -31,16 +30,21 @@ const CreateReminderScreen = ({navigation}) => {
   const [mode, setMode] = useState('');
   const [show, setShow] = useState(false);
 
+  const [createReminder, {data}] = useMutation(CREATE_REMINDER);
+
   const onCreate = () => {
     if (title !== '' && date > new Date()) {
       var a = new Date(date);
       a = a.setSeconds(0);
 
       createReminder({
-        roomName,
-        roomId,
-        title: title,
-        reminderTime: new Date(a).getTime(),
+        variables: {
+          userId: getUserProfile()?.uid,
+          roomName,
+          roomId,
+          title,
+          reminderTime: new Date(a).getTime(),
+        },
       });
     }
     return navigation.goBack();
